@@ -1,0 +1,36 @@
+<svg viewBox="0 0 100 100" width="1em" height="1em" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100" height="100" rx="20" fill="#111"/>
+  <g>
+    <!-- Row 1 -->
+    <rect x="12" y="12" width="12" height="12" rx="2" fill="#FFAAAA"/>
+    <rect x="28" y="12" width="12" height="12" rx="2" fill="#FF7777"/>
+    <rect x="44" y="12" width="12" height="12" rx="2" fill="#FF4444"/>
+    <rect x="60" y="12" width="12" height="12" rx="2" fill="#FF1111"/>
+    <rect x="76" y="12" width="12" height="12" rx="2" fill="#E60000"/>
+    <!-- Row 2 -->
+    <rect x="12" y="28" width="12" height="12" rx="2" fill="#FF7777"/>
+    <rect x="28" y="28" width="12" height="12" rx="2" fill="#FF4444"/>
+    <rect x="44" y="28" width="12" height="12" rx="2" fill="#FF1111"/>
+    <rect x="60" y="28" width="12" height="12" rx="2" fill="#E60000"/>
+    <rect x="76" y="28" width="12" height="12" rx="2" fill="#D20000"/>
+    <!-- Row 3 -->
+    <rect x="12" y="44" width="12" height="12" rx="2" fill="#FF4444"/>
+    <rect x="28" y="44" width="12" height="12" rx="2" fill="#FF1111"/>
+    <rect x="44" y="44" width="12" height="12" rx="2" fill="#E60000"/>
+    <rect x="60" y="44" width="12" height="12" rx="2" fill="#D20000"/>
+    <rect x="76" y="44" width="12" height="12" rx="2" fill="#B70000"/>
+    <!-- Row 4 -->
+    <rect x="12" y="60" width="12" height="12" rx="2" fill="#FF1111"/>
+    <rect x="28" y="60" width="12" height="12" rx="2" fill="#E60000"/>
+    <rect x="44" y="60" width="12" height="12" rx="2" fill="#D20000"/>
+    <rect x="60" y="60" width="12" height="12" rx="2" fill="#B70000"/>
+    <rect x="76" y="60" width="12" height="12" rx="2" fill="#A30000"/>
+    <!-- Row 5 -->
+    <rect x="12" y="76" width="12" height="12" rx="2" fill="#E60000"/>
+    <rect x="28" y="76" width="12" height="12" rx="2" fill="#D20000"/>
+    <rect x="44" y="76" width="12" height="12" rx="2" fill="#B70000"/>
+    <rect x="60" y="76" width="12" height="12" rx="2" fill="#A30000"/>
+    <rect x="76" y="76" width="12" height="12" rx="2" fill="#8F0000"/>
+  </g>
+</svg>
+
