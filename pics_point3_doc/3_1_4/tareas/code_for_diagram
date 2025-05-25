@@ -1,0 +1,8 @@
+```mermaid
+flowchart TD
+    Inicio(["Inicio"]) --> NuevaTarea["Nueva tarea"]
+    NuevaTarea --> EscribirDescripcion["Escribir descripción"] & CancelarTarea["Cancelar"]
+    EscribirDescripcion --> GuardarTarea["Guardar tarea"]
+    GuardarTarea --> End["Fin"]
+    CancelarTarea --> End
+```
