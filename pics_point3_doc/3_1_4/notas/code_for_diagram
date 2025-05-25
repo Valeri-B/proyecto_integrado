@@ -1,0 +1,6 @@
+flowchart TD
+    Inicio(["Inicio"]) --> NuevaNota["Nueva nota"]
+    NuevaNota --> EditarNota["Editar contenido/título"] & CancelarNota["Cancelar"]
+    EditarNota --> GuardarNota["Guardar nota"]
+    GuardarNota --> End(["Fin"])
+    CancelarNota --> End

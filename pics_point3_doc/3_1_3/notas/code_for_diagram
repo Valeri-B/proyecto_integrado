@@ -1,0 +1,9 @@
+```mermaid
+stateDiagram-v2
+    [*] --> Activa
+    Activa --> Archivada: Archivar
+    Archivada --> Activa: Restaurar
+    Activa --> Eliminada: Eliminar
+    Archivada --> Eliminada: Eliminar
+    Eliminada --> [*]
+```

@@ -1,0 +1,37 @@
+```mermaid
+flowchart TD
+    Usuario((Usuario))
+    GestionarNotas[Gestionar notas]
+    GestionarCarpetas[Gestionar carpetas]
+    GestionarTareas[Gestionar tareas]
+    GestionarRecordatorios[Gestionar recordatorios]
+    GestionarEtiquetas[Gestionar etiquetas]
+    BuscarNotas[Buscar notas]
+    VerHeatmap[Ver heatmap de actividad]
+    Autenticacion[Registrarse / Iniciar sesión]
+
+    Usuario --> Autenticacion
+    Usuario --> GestionarNotas
+    Usuario --> GestionarCarpetas
+    Usuario --> GestionarTareas
+    Usuario --> GestionarRecordatorios
+    Usuario --> GestionarEtiquetas
+    Usuario --> BuscarNotas
+    Usuario --> VerHeatmap
+
+    GestionarNotas -->|Crear| CrearNota[Crear nota]
+    GestionarNotas -->|Editar| EditarNota[Editar nota]
+    GestionarNotas -->|Eliminar| EliminarNota[Eliminar nota]
+    GestionarNotas -->|Ver| VerNotas[Ver notas sueltas]
+
+    GestionarCarpetas -->|Crear| CrearCarpeta[Crear carpeta]
+    GestionarCarpetas -->|Ver árbol| VerArbolCarpetas[Ver árbol de carpetas]
+    GestionarCarpetas -->|Mover nota| MoverNotaCarpeta[Mover nota a carpeta]
+
+    GestionarTareas -->|Crear| CrearTarea[Crear tarea en nota]
+    GestionarTareas -->|Completar| CompletarTarea[Completar tarea]
+
+    GestionarRecordatorios --> AsignarRecordatorio[Asignar recordatorio]
+
+    GestionarEtiquetas --> EtiquetarNota[Etiquetar nota]
+```

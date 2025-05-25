@@ -1,0 +1,8 @@
+```mermaid
+flowchart TD
+    Inicio([Inicio]) --> NuevaCarpeta["Nueva carpeta"]
+    NuevaCarpeta --> EscribirNombre["Escribir nombre"] & CancelarCarpeta["Cancelar"]
+    EscribirNombre --> GuardarCarpeta[Guardar carpeta]
+    GuardarCarpeta --> End["Fin"]
+    CancelarCarpeta --> End
+```
