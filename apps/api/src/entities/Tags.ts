@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Notes } from "./Notes";
+import { Tasks } from "./Tasks";
 import { Users } from "./Users";
 
 @Index("tags_pkey", ["id"], { unique: true })
@@ -24,6 +25,9 @@ export class Tags {
 
   @ManyToMany(() => Notes, (notes) => notes.tags)
   notes: Notes[];
+
+  @ManyToMany(() => Tasks, (tasks) => tasks.tags)
+  tasks: Tasks[];
 
   @ManyToOne(() => Users, (users) => users.tags, { onDelete: "CASCADE" })
   @JoinColumn([{ name: "user_id", referencedColumnName: "id" }])
