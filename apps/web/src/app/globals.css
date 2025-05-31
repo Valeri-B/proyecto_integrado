@@ -222,3 +222,35 @@ body {
 .animate-scale-in { animation: scale-in 0.2s both; }
 
 
+.no-select, .no-select * {
+  user-select: none !important;
+}
+
+@keyframes shine-and-scale {
+  0% {
+    box-shadow: 0 0 0 0 #fff7, 0 0 0 0 var(--accent);
+    transform: scale(1);
+    background: none;
+  }
+  20% {
+    box-shadow: 0 0 16px 4px #fff7, 0 0 0 0 var(--accent);
+    transform: scale(1.05);
+    background: linear-gradient(90deg, #fff7 0%, var(--accent) 100%);
+  }
+  80% {
+    box-shadow: 0 0 0 0 #fff7, 0 0 16px 4px var(--accent);
+    transform: scale(1.05);
+    background: linear-gradient(90deg, var(--accent) 0%, #fff7 100%);
+  }
+  100% {
+    box-shadow: 0 0 0 0 #fff7, 0 0 0 0 var(--accent);
+    transform: scale(1);
+    background: none;
+  }
+}
+.shine-and-scale {
+  animation: shine-and-scale 0.9s cubic-bezier(.4,2,.6,1) both;
+  z-index: 10;
+}
+
+
