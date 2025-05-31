@@ -3,6 +3,8 @@ import {
   Entity,
   Index,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -10,7 +12,8 @@ import {
 import { Reminders } from "./Reminders";
 import { Notes } from "./Notes";
 import { TaskLists } from "./TaskLists";
-import { Users } from "./Users"; // Add this
+import { Users } from "./Users";
+import { Tags } from "./Tags";
 
 @Index("tasks_pkey", ["id"], { unique: true })
 @Entity("tasks", { schema: "ntodo" })
@@ -20,6 +23,9 @@ export class Tasks {
 
   @Column("text", { name: "content" })
   content: string;
+
+  @Column("text", { name: "description", nullable: true })
+  description: string | null;
 
   @Column("timestamp without time zone", { name: "due_date", nullable: true })
   dueDate: Date | null;
@@ -56,4 +62,13 @@ export class Tasks {
   @ManyToOne(() => Users, (user) => user.tasks, { nullable: true, onDelete: "CASCADE" })
   @JoinColumn([{ name: "user_id", referencedColumnName: "id" }])
   user: Users | null;
+
+  @ManyToMany(() => Tags, (tags) => tags.tasks)
+  @JoinTable({
+    name: "task_tags",
+    joinColumns: [{ name: "task_id", referencedColumnName: "id" }],
+    inverseJoinColumns: [{ name: "tag_id", referencedColumnName: "id" }],
+    schema: "ntodo",
+  })
+  tags: Tags[];
 }
