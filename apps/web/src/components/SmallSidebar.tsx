@@ -10,7 +10,30 @@ type Props = {
 
 export default function SmallSidebar({ collapsed, onCollapse, onSelect, activeView, isAdmin }: Props) {
   return (
-    <nav className={`flex flex-col items-center bg-gray-900 text-white py-4 transition-all duration-300 ${collapsed ? "w-12" : "w-20"}`}>
+    <nav
+      className={`
+        flex flex-col items-center
+        border-r border-[var(--border)]
+        shadow-lg
+        transition-all duration-300
+        backdrop-blur-lg
+        backdrop-saturate-200
+        glass-border
+        ${collapsed ? "w-12" : "w-20"}
+        bg-clip-padding
+      `}
+      style={{
+        minWidth: collapsed ? 48 : 80,
+        background: "var(--glass-bg)",
+        backdropFilter: "blur(1.5px)",
+        WebkitBackdropFilter: "blur(1.5px)",
+        borderRadius: 0,
+        borderRight: "1px solid var(--border)",
+        overflow: "hidden",
+        paddingTop: 16,
+        paddingBottom: 16,
+      }}
+    >
       {/* Collapse/Expand Icon */}
       <button
         className="mb-6 p-2 hover:bg-gray-800 rounded transition"
