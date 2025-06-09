@@ -21,5 +21,16 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "@nestjs/passport": "^11.0.5",
+    "@react-three/fiber": "^9.1.2",
+    "@types/three": "^0.177.0",
+    "clsx": "^2.1.1",
+    "motion": "^12.16.0",
+    "passport": "^0.7.0",
+    "passport-github2": "^0.1.12",
+    "tailwind-merge": "^3.3.0",
+    "three": "^0.177.0"
+  }
 }
