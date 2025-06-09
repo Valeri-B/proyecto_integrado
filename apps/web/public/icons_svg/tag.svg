@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="var(--tag-icon)" strokeWidth={1.5}
+    className="w-7 h-7">
+    <path fill="var(--tag-icon)" stroke="var(--tag-icon)" strokeWidth="1.5"
+        d="M4.5 2A2.5 2.5 0 0 0 2 4.5v3.879a2.5 2.5 0 0 0 .732 1.767l7.5 7.5a2.5 2.5 0 0 0 3.536 0l3.878-3.878a2.5 2.5 0 0 0 0-3.536l-7.5-7.5A2.5 2.5 0 0 0 8.38 2H4.5Z" />
+    <circle fill="var(--tag-icon)" cx="5" cy="6" r="1" />
+</svg>
