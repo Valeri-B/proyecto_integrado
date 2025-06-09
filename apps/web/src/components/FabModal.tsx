@@ -62,9 +62,9 @@ export default function FabModal({
       >
         {fabMode === "note" && (
           <form className="flex flex-col gap-4 mt-2" onSubmit={handleCreateNote}>
-            <h2 className="text-lg font-bold">New note</h2>
+            <h2 className="text-lg font-bold new-note-modal-text">New note</h2>
             <input
-              className="p-2 rounded border border-gray-700"
+              className="p-2 rounded-xl border border-gray-700 new-note-modal-text"
               placeholder="Note Title"
               value={newNoteTitle}
               onChange={e => setNewNoteTitle(e.target.value)}
@@ -72,17 +72,18 @@ export default function FabModal({
               autoFocus
             />
             <select
-              className="p-2 rounded border border-gray-700"
+              className="p-2 rounded-xl border border-gray-700 new-note-modal-text"
+              style={{ backgroundColor: "var(--new-note-modal-select-bg)" }}
               value={parentFolderId ?? ""}
               onChange={e => setParentFolderId(e.target.value ? Number(e.target.value) : null)}
             >
               <option value="">No Folder selected(optional)</option>
               {folders.map(f => (
-                <option key={f.id} value={f.id}>{f.name}</option>
+              <option key={f.id} value={f.id}>{f.name}</option>
               ))}
             </select>
             <button
-              className="bg-[var(--accent)] text-white px-4 py-2 rounded font-semibold"
+              className="fab-modal-create-btn px-4 py-2 font-semibold rounded-2xl"
               type="submit"
               disabled={creating}
             >
@@ -92,35 +93,38 @@ export default function FabModal({
         )}
         {fabMode === "folder" && (
           <form className="flex flex-col gap-4 mt-2" onSubmit={handleCreateFolder}>
-            <h2 className="text-lg font-bold">New Folder</h2>
+            <h2 className="text-lg font-bold" style={{ color: "var(--new-folder-modal-text)" }}>New Folder</h2>
             <input
-              className="p-2 rounded border border-gray-700"
+              className="p-2 rounded-xl border border-gray-700"
               placeholder="Folder Name"
               value={newFolderName}
               onChange={e => setNewFolderName(e.target.value)}
               required
               autoFocus
+              style={{ color: "var(--new-folder-modal-text)" }}
             />
             <select
-              className="p-2 rounded border border-gray-700"
+              className="p-2 rounded-xl border border-gray-700"
               value={parentFolderId ?? ""}
               onChange={e => setParentFolderId(e.target.value ? Number(e.target.value) : null)}
+              style={{ backgroundColor: "var(--new-folder-modal-select-bg)", color: "var(--new-folder-modal-text)" }}
             >
               <option value="">No Folder selected(optional)</option>
               {folders.map(f => (
-                <option key={f.id} value={f.id}>{f.name}</option>
+          <option key={f.id} value={f.id}>{f.name}</option>
               ))}
             </select>
             <input
               type="color"
               value={newFolderColor}
               onChange={e => setNewFolderColor(e.target.value)}
-              className="w-8 h-8 border-none"
+              className="w-8 h-8 border-none rounded-full"
             />
             <button
-              className="bg-[var(--accent)] text-white px-4 py-2 rounded font-semibold"
+              className="fab-modal-create-btn px-4 py-2 font-semibold rounded-2xl"
               type="submit"
               disabled={creating}
+              style={{ color: "var(--new-folder-modal-text)" }}
             >
               Create
             </button>
