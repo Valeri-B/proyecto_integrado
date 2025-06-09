@@ -12,6 +12,30 @@
   --border: #e5e5e5;
   --radius: 1rem;
   --shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.234);
+  --light-login-register-text: #FD0054;
+  --bg-svgs: #f53d4f;
+  --light-moon-sun-icon: #D84040;
+  --light-moon-sun-bg: #EEEEEE;
+  --logout-button-bg: #EEEEEE;
+  --logout-button-icon: #DC143C;
+  --note-icon: #50C878;
+  --note-bg: #EEEEEE;
+  --folder-icon: #4169E1;
+  --folder-bg: #EEEEEE;
+  --calendar-icon: #D84040;
+  --calendar-bg: #EEEEEE;
+  --tag-icon: #FFE28E;
+  --tag-bg: #EEEEEE;
+  --sidebar-toggle-icon: #1D1616;
+  --search-text: #DC143C;
+  --search-icon: #DC143C;
+  --productvt-panel-h2: #DC143C;
+  --search-result-text: #1D1616;
+  --note-icon-search-result: #DC143C;
+  --task-icon-search-result: #DC143C;
+  --tag-result-modal-text: #DC143C;
+
 }
 
 /* Dark mode via prefers-color-scheme */
@@ -27,6 +51,28 @@
     --border: #23232a;
     --radius: 1rem;
     --shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.25);
+    --bg-svgs: f5f5f5;
+    --glass-bg: rgba(24, 24, 27, 0.4);
+    --light-moon-sun-icon: #D84040;
+    --light-moon-sun-bg: #1D1616;
+    --logout-button-bg: #DC143C;
+    --logout-button-icon: #EEEEEE;
+    --note-icon: #50C878;
+    --note-bg: #1D1616;
+    --folder-icon: #4169E1;
+    --folder-bg: #1D1616;
+    --calendar-icon: #D84040;
+    --calendar-bg: #1D1616;
+    --tag-icon: #FFE28E;
+    --tag-bg: #1D1616;
+    --sidebar-toggle-icon: #EEEEEE;
+    --search-text: #EEEEEE;
+    --search-icon: #EEEEEE;
+    --productvt-panel-h2: #EEEEEE;
+    --search-result-text: #EEEEEE;
+    --note-icon-search-result: #EEEEEE;
+    --task-icon-search-result: #EEEEEE;
+    --tag-result-modal-text: #EEEEEE;
   }
 }
 
@@ -42,6 +88,28 @@
   --border: #23232a;
   --radius: 1rem;
   --shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.25);
+  --bg-svgs: f5f5f5;
+  --glass-bg: rgba(24, 24, 27, 0.4);
+  --light-moon-sun-icon: #D84040;
+  --light-moon-sun-bg: #1D1616;
+  --logout-button-bg: #DC143C;
+  --logout-button-icon: #EEEEEE;
+  --note-icon: #50C878;
+  --note-bg: #1D1616;
+  --folder-icon: #4169E1;
+  --folder-bg: #1D1616;
+  --calendar-icon: #D84040;
+  --calendar-bg: #1D1616;
+  --tag-icon: #FFE28E;
+  --tag-bg: #1D1616;
+  --sidebar-toggle-icon: #EEEEEE;
+  --search-text: #EEEEEE;
+  --search-icon: #EEEEEE;
+  --productvt-panel-h2: #EEEEEE;
+  --search-result-text: #EEEEEE;
+  --note-icon-search-result: #EEEEEE;
+  --task-icon-search-result: #EEEEEE;
+  --tag-result-modal-text: #EEEEEE;
 }
 
 /* Manual override: light */
@@ -56,6 +124,29 @@
   --border: #e5e5e5;
   --radius: 1rem;
   --shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.08);
+  --bg-svgs: #f53d4f;
+  --glass-bg: rgba(255, 255, 255, 0.18);
+  --light-login-register-text: #FD0054;
+  --light-moon-sun-icon: #D84040;
+  --light-moon-sun-bg: #EEEEEE;
+  --logout-button-bg: #EEEEEE;
+  --logout-button-icon: #DC143C;
+  --note-icon: #50C878;
+  --note-bg: #EEEEEE;
+  --folder-icon: #4169E1;
+  --folder-bg: #EEEEEE;
+  --calendar-icon: #D84040;
+  --calendar-bg: #EEEEEE;
+  --tag-icon: #FFE28E;
+  --tag-bg: #EEEEEE;
+  --sidebar-toggle-icon: #1D1616;
+  --search-text: #DC143C;
+  --search-icon: #DC143C;
+  --productvt-panel-h2: #DC143C;
+  --search-result-text: #1D1616;
+  --note-icon-search-result: #DC143C;
+  --task-icon-search-result: #DC143C;
+  --tag-result-modal-text: #DC143C;
 }
 
 body {
@@ -110,11 +201,25 @@ body {
   animation: bounce-in 0.6s cubic-bezier(.68, -0.55, .27, 1.55) both;
 }
 
-.bounce-letter-0 { animation-delay: 0s; }
-.bounce-letter-1 { animation-delay: 0.07s; }
-.bounce-letter-2 { animation-delay: 0.14s; }
-.bounce-letter-3 { animation-delay: 0.21s; }
-.bounce-letter-4 { animation-delay: 0.28s; }
+.bounce-letter-0 {
+  animation-delay: 0s;
+}
+
+.bounce-letter-1 {
+  animation-delay: 0.07s;
+}
+
+.bounce-letter-2 {
+  animation-delay: 0.14s;
+}
+
+.bounce-letter-3 {
+  animation-delay: 0.21s;
+}
+
+.bounce-letter-4 {
+  animation-delay: 0.28s;
+}
 
 .shiny-gradient {
   background: linear-gradient(90deg,
@@ -133,22 +238,25 @@ body {
 }
 
 @keyframes shine {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .animated-border {
   position: relative;
   border-radius: 1rem;
   padding: 0.7px;
-  background: linear-gradient(
-    120deg,
-    var(--accent) 10%,
-    #fff 30%,
-    var(--accent) 50%,
-    var(--accent-hover) 80%,
-    var(--accent) 100%
-  );
+  background: linear-gradient(120deg,
+      var(--accent) 10%,
+      #fff 30%,
+      var(--accent) 50%,
+      var(--accent-hover) 80%,
+      var(--accent) 100%);
   background-size: 200% 200%;
   transition: background 0.3s, animation 0.3s;
 }
@@ -158,8 +266,13 @@ body {
 }
 
 @keyframes border-shine {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .animated-border.focused {
@@ -173,7 +286,7 @@ body {
 }
 
 .login-btn-glow {
-  transition: 
+  transition:
     border-color 0.3s,
     box-shadow 0.3s,
     background 0.3s;
@@ -207,22 +320,46 @@ body {
 
 .markdown-preview code {
   color: #fff !important;
-  background: rgba(255,255,255,0.08) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
 @keyframes fade-in {
-  from { opacity: 0 }
-  to { opacity: 1 }
+  from {
+    opacity: 0
+  }
+
+  to {
+    opacity: 1
+  }
 }
+
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.95);}
-  to { opacity: 1; transform: scale(1);}
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
-.animate-fade-in { animation: fade-in 0.2s both; }
-.animate-scale-in { animation: scale-in 0.2s both; }
+
+.animate-fade-in {
+  animation: fade-in 0.2s both;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s both;
+}
 
 
-.no-select, .no-select * {
+.no-select,
+.no-select * {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  -o-user-select: none !important;
   user-select: none !important;
 }
 
@@ -232,25 +369,448 @@ body {
     transform: scale(1);
     background: none;
   }
+
   20% {
     box-shadow: 0 0 16px 4px #fff7, 0 0 0 0 var(--accent);
     transform: scale(1.05);
     background: linear-gradient(90deg, #fff7 0%, var(--accent) 100%);
   }
+
   80% {
     box-shadow: 0 0 0 0 #fff7, 0 0 16px 4px var(--accent);
     transform: scale(1.05);
     background: linear-gradient(90deg, var(--accent) 0%, #fff7 100%);
   }
+
   100% {
     box-shadow: 0 0 0 0 #fff7, 0 0 0 0 var(--accent);
     transform: scale(1);
     background: none;
   }
 }
+
 .shine-and-scale {
-  animation: shine-and-scale 0.9s cubic-bezier(.4,2,.6,1) both;
+  animation: shine-and-scale 0.9s cubic-bezier(.4, 2, .6, 1) both;
   z-index: 10;
 }
 
+.svg-bg-icon {
+  transition: transform 0.2s cubic-bezier(.4, 2, .6, 1);
+  will-change: transform;
+  cursor: grab;
+}
 
+.shiny-link {
+  position: relative;
+  display: inline-block;
+  color: var(--accent);
+  font-weight: bold;
+  background: linear-gradient(120deg,
+      var(--accent) 0%,
+      #fff 40%,
+      var(--accent) 60%,
+      var(--accent-hover) 100%);
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: shiny-move 2.5s linear infinite;
+  transition: filter 0.2s;
+  filter: drop-shadow(0 1px 4px rgba(255, 255, 255, 0.25));
+}
+
+.shiny-link:hover,
+.shiny-link:focus {
+  filter: drop-shadow(0 2px 8px #fff) brightness(1.2);
+  animation-duration: 1.2s;
+}
+
+@keyframes shiny-move {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.password-reqs {
+  transition: max-height 0.3s cubic-bezier(.4, 2, .6, 1), opacity 0.2s;
+  will-change: max-height, opacity;
+}
+
+.password-expand {
+  transition: max-height 0.3s cubic-bezier(.4, 2, .6, 1), box-shadow 0.2s;
+  overflow: hidden;
+}
+
+/* Password requirements checklist animation */
+.password-checklist {
+  --background: transparent --text: var(--foreground);
+  --check: var(--accent);
+  --disabled: #c3c8de;
+  --border-radius: 1rem;
+  background: var(--background);
+  border-radius: var(--border-radius);
+  box-shadow: 0 10px 30px rgba(65, 72, 86, 0.05);
+  padding: 18px 12px 12px 12px;
+  display: grid;
+  grid-template-columns: 30px auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0 8px;
+}
+
+.password-checklist label {
+  color: var(--text);
+  position: relative;
+  cursor: pointer;
+  display: grid;
+  align-items: center;
+  width: fit-content;
+  transition: color 0.3s ease;
+  margin-right: 20px;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.password-checklist label::before,
+.password-checklist label::after {
+  content: "";
+  position: absolute;
+}
+
+.password-checklist label::before {
+  height: 2px;
+  width: 8px;
+  left: -27px;
+  background: var(--check);
+  border-radius: 2px;
+  transition: background 0.3s ease;
+}
+
+.password-checklist label:after {
+  height: 4px;
+  width: 4px;
+  top: 8px;
+  left: -25px;
+  border-radius: 50%;
+}
+
+.password-checklist input[type="checkbox"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  position: relative;
+  height: 15px;
+  width: 15px;
+  outline: none;
+  border: 0;
+  margin: 0 15px 0 0;
+  cursor: pointer;
+  display: grid;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.password-checklist input[type="checkbox"]::before,
+.password-checklist input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  height: 2px;
+  top: auto;
+  background: var(--check);
+  border-radius: 2px;
+}
+
+.password-checklist input[type="checkbox"]::before {
+  width: 0px;
+  right: 60%;
+  transform-origin: right bottom;
+}
+
+.password-checklist input[type="checkbox"]::after {
+  width: 0px;
+  left: 40%;
+  transform-origin: left bottom;
+}
+
+.password-checklist input[type="checkbox"]:checked::before {
+  animation: check-01 0.4s ease forwards;
+}
+
+.password-checklist input[type="checkbox"]:checked::after {
+  animation: check-02 0.4s ease forwards;
+}
+
+.password-checklist input[type="checkbox"]:checked+label {
+  color: var(--disabled);
+  animation: move 0.3s ease 0.1s forwards;
+}
+
+.password-checklist input[type="checkbox"]:checked+label::before {
+  background: var(--disabled);
+  animation: slice 0.4s ease forwards;
+}
+
+.password-checklist input[type="checkbox"]:checked+label::after {
+  animation: firework 0.5s ease forwards 0.1s;
+}
+
+@keyframes move {
+  50% {
+    padding-left: 8px;
+    padding-right: 0px;
+  }
+
+  100% {
+    padding-right: 4px;
+  }
+}
+
+@keyframes slice {
+  60% {
+    width: 100%;
+    left: 4px;
+  }
+
+  100% {
+    width: 100%;
+    left: -2px;
+    padding-left: 0;
+  }
+}
+
+@keyframes check-01 {
+  0% {
+    width: 4px;
+    top: auto;
+    transform: rotate(0);
+  }
+
+  50% {
+    width: 0px;
+    top: auto;
+    transform: rotate(0);
+  }
+
+  51% {
+    width: 0px;
+    top: 8px;
+    transform: rotate(45deg);
+  }
+
+  100% {
+    width: 5px;
+    top: 8px;
+    transform: rotate(45deg);
+  }
+}
+
+@keyframes check-02 {
+  0% {
+    width: 4px;
+    top: auto;
+    transform: rotate(0);
+  }
+
+  50% {
+    width: 0px;
+    top: auto;
+    transform: rotate(0);
+  }
+
+  51% {
+    width: 0px;
+    top: 8px;
+    transform: rotate(-45deg);
+  }
+
+  100% {
+    width: 10px;
+    top: 8px;
+    transform: rotate(-45deg);
+  }
+}
+
+@keyframes firework {
+  0% {
+    opacity: 1;
+    box-shadow: 0 0 0 -2px var(--check), 0 0 0 -2px var(--check), 0 0 0 -2px var(--check), 0 0 0 -2px var(--check), 0 0 0 -2px var(--check), 0 0 0 -2px var(--check);
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    box-shadow: 0 -15px 0 0px var(--check), 14px -8px 0 0px var(--check), 14px 8px 0 0px var(--check), 0 15px 0 0px var(--check), -14px 8px 0 0px var(--check), -14px -8px 0 0px var(--check);
+  }
+}
+
+[data-theme="light"] .password-checklist {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+
+
+/* CALENDAR STYLES */
+.react-calendar {
+  /* main container */
+  background: var(--glass-bg) !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-family: inherit;
+}
+
+.react-calendar__navigation {
+  /* top bar */
+  background: transparent !important;
+  border: none !important;
+  margin-bottom: 0.5rem;
+}
+
+.react-calendar__navigation button {
+  /* arrows/month/year */
+  background: none !important;
+  font-weight: bold;
+  border-radius: 0.75rem;
+  transition: background 0.2s;
+  color: #1D1616;
+  /* default for light mode */
+}
+
+[data-theme="dark"] .react-calendar__navigation button {
+  color: #EEEEEE;
+}
+
+[data-theme="light"] .react-calendar__navigation button {
+  color: #1D1616;
+}
+
+.react-calendar__month-view__weekdays {
+  /* weekdays row */
+  background: transparent !important;
+  color: var(--accent-muted);
+  font-size: 0.7rem !important;
+  text-decoration: none !important;
+}
+
+.react-calendar__month-view__weekdays__weekday abbr {
+  /* weekday names */
+  text-decoration: none !important;
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  /* each weekday */
+  color: inherit;
+}
+
+.react-calendar__tile {
+  /* each day cell */
+  background: transparent !important;
+  color: var(--foreground);
+  border-radius: 0.55rem;
+  transition: background 0.2s, color 0.2s;
+  font-size: 0.95rem;
+  aspect-ratio: 1 / 1;
+  width: 1.97rem;
+  height: 1.97rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  border: 0.5px solid var(--border) !important;
+}
+
+.react-calendar__tile--now {
+  /* today */
+  background: var(--accent) !important;
+  color: #fff !important;
+  border-radius: 0.55rem !important;
+  font-weight: bold;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.10);
+  aspect-ratio: 1 / 1;
+  width: 1.97rem;
+  height: 1.97rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  transition: background 0.2s, color 0.2s;
+}
+
+
+[data-theme="light"] .react-calendar__tile--now {
+  background: var(--accent) !important;
+  color: #fff !important;
+}
+
+
+[data-theme="dark"] .react-calendar__tile--now {
+  background: var(--accent) !important;
+  color: #fff !important;
+}
+
+.react-calendar__tile--active {
+  /* selected day */
+  background: var(--accent-hover) !important;
+  color: #fff !important;
+  border-radius: 0.55rem !important;
+}
+
+.react-calendar__month-view__days__day--neighboringMonth {
+  /* faded days */
+  color: #bbb !important;
+  opacity: 0.5;
+}
+
+.react-calendar__tile abbr {
+  /* day number */
+  text-decoration: none;
+  color: inherit;
+}
+
+.calendar-animate {
+  transition: max-height 0.4s cubic-bezier(.4, 2, .6, 1), opacity 0.3s, transform 0.4s cubic-bezier(.4, 2, .6, 1) !important;
+  max-height: 500px !important;
+  opacity: 1 !important;
+  transform: scale(1) !important;
+  will-change: max-height, opacity, transform !important;
+}
+
+.calendar-animate-hide {
+  max-height: 0 !important;
+  opacity: 0 !important;
+  transform: scale(0.97) !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+}
+
+
+/* SEARCH STYLES */
+.shortcut-badge {
+  background: rgba(255, 255, 255, 0.6);
+  color: #222;
+  border-radius: 0.65rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+  padding: 2px 8px;
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] .shortcut-badge {
+  background: #23232a;
+  color: #eee;
+  border: 1px solid #333;
+}
