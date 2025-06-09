@@ -5,6 +5,10 @@ import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Users } from '../entities/Users';
 import { ConfigService } from '@nestjs/config';
+import { GithubStrategy } from 'src/github.strategy';
+import { RolesGuard } from './roles.guard';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
@@ -17,7 +21,7 @@ import { ConfigService } from '@nestjs/config';
       }),
     }),
   ],
-  providers: [AuthService],
+  providers: [AuthService, GithubStrategy, JwtStrategy, RolesGuard, JwtAuthGuard],
   controllers: [AuthController],
 })
 export class AuthModule {}
