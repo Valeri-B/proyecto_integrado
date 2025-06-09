@@ -35,6 +35,11 @@
   --note-icon-search-result: #DC143C;
   --task-icon-search-result: #DC143C;
   --tag-result-modal-text: #DC143C;
+  --new-note-modal-text: #EEEEEE;
+  --new-note-modal-select-bg: #1D1616;
+  --new-folder-modal-text: #EEEEEE;
+  --new-folder-modal-select-bg: #1D1616;
+  --search-tag-text: #1D1616;
 
 }
 
@@ -73,6 +78,11 @@
     --note-icon-search-result: #EEEEEE;
     --task-icon-search-result: #EEEEEE;
     --tag-result-modal-text: #EEEEEE;
+    --new-note-modal-text: #EEEEEE;
+    --new-note-modal-select-bg: #1D1616;
+    --new-folder-modal-text: #EEEEEE;
+    --new-folder-modal-select-bg: #1D1616;
+    --search-tag-text: #EEEEEE;
   }
 }
 
@@ -110,6 +120,11 @@
   --note-icon-search-result: #EEEEEE;
   --task-icon-search-result: #EEEEEE;
   --tag-result-modal-text: #EEEEEE;
+  --new-note-modal-text: #EEEEEE;
+  --new-note-modal-select-bg: #1D1616;
+  --new-folder-modal-text: #EEEEEE;
+  --new-folder-modal-select-bg: #1D1616;
+  --search-tag-text: #EEEEEE;
 }
 
 /* Manual override: light */
@@ -147,6 +162,11 @@
   --note-icon-search-result: #DC143C;
   --task-icon-search-result: #DC143C;
   --tag-result-modal-text: #DC143C;
+  --new-note-modal-text: #EEEEEE;
+  --new-note-modal-select-bg: #1D1616;
+  --new-folder-modal-text: #EEEEEE;
+  --new-folder-modal-select-bg: #1D1616;
+  --search-tag-text: #1D1616;
 }
 
 body {
@@ -813,4 +833,34 @@ body {
   background: #23232a;
   color: #eee;
   border: 1px solid #333;
+}
+
+.new-note-modal-text,
+[data-theme="light"] .new-note-modal-text {
+  color: var(--new-note-modal-text);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.18), 0 0px 1px #fff;
+}
+
+[data-theme="dark"] .new-note-modal-text {
+  color: var(--new-note-modal-text);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.7), 0 0px 1px #fff;
+}
+
+
+.fab-modal-create-btn {
+  background: var(--glass-bg);
+  color: var(--new-note-modal-text);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(8px) saturate(180%);
+  -webkit-backdrop-filter: blur(8px) saturate(180%);
+  border-radius: 1rem;
+  box-shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.08);
+  transition: background 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.fab-modal-create-btn:hover,
+.fab-modal-create-btn:focus {
+  background: var(--glass-bg);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent), 0 4px 32px 0 rgba(0, 0, 0, 0.12);
 }
