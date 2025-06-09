@@ -36,11 +36,14 @@ export class TasksService {
 
     async getTasks(userId: number, taskListId?: number) {
         if (taskListId) {
-            return this.taskRepo.find({ where: { taskList: { id: taskListId } } });
+            return this.taskRepo.find({
+                where: { taskList: { id: taskListId } },
+                relations: ["tags"],
+            });
         }
         const tasks = await this.taskRepo.find({
             where: { user: { id: userId } },
-            relations: ["taskList"],
+            relations: ["taskList", "tags"],
         });
         return tasks.map(task => ({
             ...task,
