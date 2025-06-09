@@ -1,11 +1,14 @@
-import { useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
+import TagPickerModal from "./TagPickerModal";
 
 type Task = {
   id: number;
   content: string;
+  description?: string | null;
   isDone: boolean;
   dueDate?: string | null;
   taskListId?: number | null;
+  tags?: { id: number; name: string; color: string }[];
 };
 
 type TaskList = {
@@ -13,12 +16,37 @@ type TaskList = {
   name: string;
 };
 
-type Reminder = {
-  id: number;
-  remindAt: string;
-};
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777/api";
 
-export default function TasksBoard({ userId }: { userId: number }) {
+function daysUntil(dateString?: string | null) {
+  if (!dateString) return null;
+  const now = new Date();
+  const due = new Date(dateString);
+  now.setHours(0, 0, 0, 0);
+  due.setHours(0, 0, 0, 0);
+  const diff = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  return diff;
+}
+
+export default function TasksBoard({
+  userId,
+  shiningTaskId,
+  onTasksChanged,
+  onShineEnd,
+  tags,
+  onEditTag,
+  onDeleteTag,
+  onCreateTag,
+}: {
+  userId: number;
+  shiningTaskId?: number | null;
+  onTasksChanged?: () => void;
+  onShineEnd?: () => void;
+  tags: { id: number; name: string; color: string }[];
+  onEditTag: (id: number, name: string, color: string) => void;
+  onDeleteTag: (id: number) => void;
+  onCreateTag: (name: string, color: string) => void;
+}) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [lists, setLists] = useState<TaskList[]>([]);
   const [newTask, setNewTask] = useState("");
@@ -32,16 +60,45 @@ export default function TasksBoard({ userId }: { userId: number }) {
   // For per-list new task input
   const [listTaskInputs, setListTaskInputs] = useState<Record<number, string>>({});
 
-  // Edit modal state
-  const [editTask, setEditTask] = useState<Task | null>(null);
+  // Inline edit state
+  const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [editContent, setEditContent] = useState("");
+  const [editDescription, setEditDescription] = useState("");
   const [editDueDate, setEditDueDate] = useState<string>("");
-  const [editReminder, setEditReminder] = useState<string>("");
-  const [reminderId, setReminderId] = useState<number | null>(null);
-  const [showEditModal, setShowEditModal] = useState(false);
+  const [editReminderDate, setEditReminderDate] = useState<string>("");
+  const [editReminderId, setEditReminderId] = useState<number | null>(null); // Track reminder ID
   const [savingEdit, setSavingEdit] = useState(false);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777";
+  const editDropdownRef = useRef<HTMLDivElement>(null);
+  const [savingFromOutside, setSavingFromOutside] = useState(false);
+
+  // --- Detect click outside for edit dropdown ---
+  const [clickedOutside, setClickedOutside] = useState(false);
+
+  useEffect(() => {
+    if (editingTaskId === null) return;
+
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        editDropdownRef.current &&
+        !editDropdownRef.current.contains(e.target as Node)
+      ) {
+        setClickedOutside(true);
+        setTimeout(() => {
+          setClickedOutside(false);
+          saveEdit();
+        }, 0);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [editingTaskId, editContent, editDescription, editDueDate, editReminderDate]); // dependencies: all edit fields
+
+  // For shiny animation
+  const [shinyId, setShinyId] = useState<number | null>(null);
+
+  // For tag modal per task
+  const [showTagModalForTask, setShowTagModalForTask] = useState<number | null>(null);
 
   // Helper to convert UTC ISO string to local datetime-local value
   function toDatetimeLocalValue(dateString: string | null | undefined) {
@@ -59,9 +116,12 @@ export default function TasksBoard({ userId }: { userId: number }) {
       fetch(`${API_URL}/tasklists?userId=${userId}`),
       fetch(`${API_URL}/tasks?userId=${userId}`),
     ]);
-    setLists(await listsRes.json());
-    setTasks(await tasksRes.json());
+    const listsData = await listsRes.json();
+    const tasksData = await tasksRes.json();
+    setLists(Array.isArray(listsData) ? listsData : []);
+    setTasks(Array.isArray(tasksData) ? tasksData : []);
     setLoading(false);
+    if (onTasksChanged) onTasksChanged();
   };
 
   useEffect(() => {
@@ -158,76 +218,98 @@ export default function TasksBoard({ userId }: { userId: number }) {
     fetchAll();
   };
 
-  // --- Edit Task Modal Logic ---
-
-  // Open modal and load reminder if exists
-  const openEditModal = async (task: Task) => {
-    setEditTask(task);
+  // --- Inline Edit Dropdown Logic ---
+  // Open dropdown for a task
+  const openEditDropdown = async (task: Task) => {
+    setEditingTaskId(task.id);
     setEditContent(task.content);
+    setEditDescription(task.description || "");
     setEditDueDate(toDatetimeLocalValue(task.dueDate));
-    setEditReminder("");
-    setReminderId(null);
-    setShowEditModal(true);
-
-    // Fetch reminder if exists
+    // Fetch reminder for this task
     const res = await fetch(`${API_URL}/reminders/${task.id}`);
-    if (res.ok) {
-      const reminders: Reminder[] = await res.json();
-      if (reminders.length > 0) {
-        setEditReminder(toDatetimeLocalValue(reminders[0].remindAt));
-        setReminderId(reminders[0].id);
-      }
+    const reminders = await res.json();
+    if (reminders && reminders.length > 0 && reminders[0].remindAt) {
+      setEditReminderDate(toDatetimeLocalValue(reminders[0].remindAt));
+      setEditReminderId(reminders[0].id); // Store reminder ID
+    } else {
+      setEditReminderDate("");
+      setEditReminderId(null);
     }
   };
 
-  // Save changes to task and reminder
-  const handleSaveEdit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editTask) return;
+  // Save changes and close dropdown
+  const saveEdit = async () => {
+    if (editingTaskId == null || savingEdit) return;
     setSavingEdit(true);
 
-    // Update task content and due date
-    await fetch(`${API_URL}/tasks/${editTask.id}`, {
+    // 1. Update the task (including dueDate)
+    await fetch(`${API_URL}/tasks/${editingTaskId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         content: editContent,
+        description: editDescription,
         dueDate: editDueDate ? new Date(editDueDate).toISOString() : null,
       }),
     });
 
-    // Handle reminder
-    if (editReminder) {
-      // If reminder exists, update or create
-      if (reminderId) {
-        await fetch(`${API_URL}/reminders/${reminderId}`, {
-          method: "DELETE",
-        });
-      }
+    // 2. Update, create, or delete the reminder
+    if (editReminderDate) {
       await fetch(`${API_URL}/reminders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          taskId: editTask.id,
-          remindAt: new Date(editReminder).toISOString(),
+          taskId: editingTaskId,
+          remindAt: new Date(editReminderDate).toISOString(),
         }),
       });
-    } else if (reminderId) {
-      // If reminder was removed
-      await fetch(`${API_URL}/reminders/${reminderId}`, {
+    } else if (editReminderId) {
+      // If reminder was cleared, delete it
+      await fetch(`${API_URL}/reminders/${editReminderId}`, {
         method: "DELETE",
       });
     }
 
     setSavingEdit(false);
-    setShowEditModal(false);
-    setEditTask(null);
+    setEditingTaskId(null);
+    setEditReminderId(null);
     fetchAll();
   };
 
+  // --- Tag Picker Logic for Tasks ---
+  const handleToggleTaskTag = async (tagId: number) => {
+    if (showTagModalForTask == null) return;
+    const task = tasks.find(t => t.id === showTagModalForTask);
+    if (!task) return;
+    const already = (task.tags || []).some((t) => t.id === tagId);
+    if (already) {
+      await fetch(`${API_URL}/tasks/${task.id}/tags/${tagId}?userId=${userId}`, {
+        method: "DELETE",
+      });
+    } else {
+      await fetch(`${API_URL}/tasks/${task.id}/tags/${tagId}?userId=${userId}`, {
+        method: "POST",
+      });
+    }
+    await fetchAll();
+  };
+
+  // --- Shiny animation ---
+  useEffect(() => {
+    if (shiningTaskId) {
+      setShinyId(shiningTaskId);
+      const timer = setTimeout(() => {
+        setShinyId(null);
+        if (onShineEnd) onShineEnd();
+      }, 900);
+      return () => clearTimeout(timer);
+    }
+  }, [shiningTaskId, onShineEnd]);
+
+  // --- UI ---
   return (
     <div className="flex flex-col gap-8">
-      {/* Single Tasks */}
+      {/* Loose tasks */}
       <div
         onDragOver={e => e.preventDefault()}
         onDrop={onDrop(null)}
@@ -239,47 +321,172 @@ export default function TasksBoard({ userId }: { userId: number }) {
             className="flex-1 p-2 rounded bg-gray-800 border border-gray-700 text-white"
             value={newTask}
             onChange={e => setNewTask(e.target.value)}
-            placeholder="Nueva tarea suelta"
+            placeholder="Nueva tarea"
           />
           <button className="bg-[var(--accent)] px-4 py-2 rounded text-white font-semibold" type="submit">
             Añadir
           </button>
         </form>
-        {loading ? (
-          <div className="text-gray-400">Cargando...</div>
-        ) : (
-          <ul>
-            {tasks.filter(t => !t.taskListId).map(task => (
+        <ul className="space-y-2">
+          {tasks.filter(t => !t.taskListId).map(task => {
+            const days = daysUntil(task.dueDate);
+            return (
               <li
                 key={task.id}
-                draggable
-                onDragStart={onDragStart(task.id)}
-                className="bg-gray-800 p-2 rounded mb-2 flex items-center gap-2"
+                draggable={editingTaskId !== task.id}
+                onDragStart={editingTaskId !== task.id ? onDragStart(task.id) : undefined}
+                className={`flex flex-col gap-1 mb-2 bg-gray-800 p-2 rounded ${shinyId === task.id ? "shine-and-scale" : ""}`}
               >
-                <input
-                  type="checkbox"
-                  checked={!!task.isDone}
-                  onChange={() => toggleTask(task)}
-                />
-                <span className={task.isDone ? "line-through text-gray-400" : ""}>{task.content}</span>
-                <button
-                  className="ml-auto text-blue-400 hover:text-blue-600 mr-2"
-                  onClick={() => openEditModal(task)}
-                  title="Editar tarea"
-                >
-                  ✏️
-                </button>
-                <button
-                  className="text-red-400 hover:text-red-600"
-                  onClick={() => deleteTask(task.id)}
-                  title="Eliminar tarea"
-                >
-                  🗑
-                </button>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={!!task.isDone}
+                    onChange={() => toggleTask(task)}
+                  />
+                  <span className={task.isDone ? "line-through text-gray-400 flex-1" : "flex-1"}>
+                    {task.content}
+                    {typeof days === "number" && (
+                      <span className="ml-2 text-xs text-gray-400 font-semibold">
+                        {days === 0
+                          ? "hoy"
+                          : days > 0
+                          ? `${days} días`
+                          : `${Math.abs(days)} días atrás`}
+                      </span>
+                    )}
+                  </span>
+                  {/* TAG BUTTON */}
+                  <button
+                    className="ml-2 px-2 py-1 rounded bg-yellow-500 hover:bg-yellow-600"
+                    title="Etiquetas"
+                    onClick={() => setShowTagModalForTask(task.id)}
+                    type="button"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                      <path fillRule="evenodd" d="M4.5 2A2.5 2.5 0 0 0 2 4.5v3.879a2.5 2.5 0 0 0 .732 1.767l7.5 7.5a2.5 2.5 0 0 0 3.536 0l3.878-3.878a2.5 2.5 0 0 0 0-3.536l-7.5-7.5A2.5 2.5 0 0 0 8.38 2H4.5ZM5 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                  <button
+                    className="ml-2 text-red-400 hover:text-red-600"
+                    onClick={() => deleteTask(task.id)}
+                    title="Eliminar tarea"
+                  >
+                    🗑
+                  </button>
+                  <button
+                    className="text-gray-400 hover:text-blue-500 transition"
+                    title="Editar tarea"
+                    onClick={e => {
+                      e.stopPropagation();
+                      openEditDropdown(task);
+                    }}
+                  >
+                    ✏️
+                  </button>
+                </div>
+                {/* Tags display */}
+                <div className="flex gap-1 ml-6 flex-wrap">
+                  {(task.tags || []).map((tag) => (
+                    <span
+                      key={tag.id}
+                      className="flex items-center gap-1 px-2 py-1 rounded text-xs"
+                      style={{ background: tag.color, color: "#fff" }}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
+                        <path fillRule="evenodd" d="M4.5 2A2.5 2.5 0 0 0 2 4.5v3.879a2.5 2.5 0 0 0 .732 1.767l7.5 7.5a2.5 2.5 0 0 0 3.536 0l3.878-3.878a2.5 2.5 0 0 0 0-3.536l-7.5-7.5A2.5 2.5 0 0 0 8.38 2H4.5ZM5 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clipRule="evenodd" />
+                      </svg>
+                      {tag.name}
+                    </span>
+                  ))}
+                </div>
+                {/* Tag Picker Modal */}
+                {showTagModalForTask === task.id && (
+                  <TagPickerModal
+                    tags={tags}
+                    selectedTagIds={(task.tags || []).map(t => t.id)}
+                    onToggle={handleToggleTaskTag}
+                    onClose={() => setShowTagModalForTask(null)}
+                    onEdit={onEditTag}
+                    onDelete={onDeleteTag}
+                    onCreate={onCreateTag}
+                  />
+                )}
+                {/* Inline edit dropdown */}
+                {editingTaskId === task.id && (
+                  <div
+                    ref={editDropdownRef}
+                    className="transition-all duration-300 overflow-hidden bg-gray-900 rounded-lg border border-gray-700 mt-2 max-h-[400px] opacity-100 p-4"
+                    style={{
+                      pointerEvents: "auto",
+                    }}
+                  >
+                    <form
+                      onSubmit={e => {
+                        e.preventDefault();
+                        saveEdit();
+                      }}
+                      className="flex flex-col gap-2"
+                    >
+                      <input
+                        className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[var(--accent)] transition"
+                        value={editContent}
+                        onChange={e => setEditContent(e.target.value)}
+                        disabled={savingEdit}
+                        autoFocus
+                      />
+                      <textarea
+                        className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[var(--accent)] transition"
+                        value={editDescription}
+                        onChange={e => setEditDescription(e.target.value)}
+                        disabled={savingEdit}
+                        placeholder="Descripción"
+                      />
+                      <input
+                        type="datetime-local"
+                        className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[var(--accent)] transition"
+                        value={editDueDate || ""}
+                        onChange={e => setEditDueDate(e.target.value)}
+                        disabled={savingEdit}
+                      />
+                      <input
+                        type="datetime-local"
+                        className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[var(--accent)] transition"
+                        value={editReminderDate || ""}
+                        onChange={e => setEditReminderDate(e.target.value)}
+                        onBlur={() => {
+                          // If the user is clicking outside, ensure the latest value is saved
+                          if (clickedOutside) {
+                            setTimeout(() => {
+                              saveEdit();
+                            }, 0);
+                          }
+                        }}
+                        disabled={savingEdit}
+                      />
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          className="bg-green-600 px-4 py-2 rounded text-white font-semibold"
+                          type="submit"
+                          disabled={savingEdit}
+                        >
+                          Guardar
+                        </button>
+                        <button
+                          className="bg-gray-700 px-4 py-2 rounded text-white font-semibold"
+                          type="button"
+                          onClick={() => setEditingTaskId(null)}
+                          disabled={savingEdit}
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
               </li>
-            ))}
-          </ul>
-        )}
+            );
+          })}
+        </ul>
       </div>
       {/* Task Lists */}
       <div>
@@ -291,11 +498,11 @@ export default function TasksBoard({ userId }: { userId: number }) {
             onChange={e => setNewList(e.target.value)}
             placeholder="Nueva lista"
           />
-          <button className="bg-blue-600 px-4 py-2 rounded text-white font-semibold" type="submit">
+          <button className="bg-green-600 px-4 py-2 rounded text-white font-semibold" type="submit">
             Crear lista
           </button>
         </form>
-        <div className="flex gap-8 flex-wrap">
+        <div className="flex gap-8">
           {lists.map(list => (
             <div
               key={list.id}
@@ -317,48 +524,12 @@ export default function TasksBoard({ userId }: { userId: number }) {
                   🗑
                 </button>
               </div>
-              <ul>
-                {tasks
-                  .filter(t => t.taskListId === list.id)
-                  .map(task => (
-                    <li
-                      key={task.id}
-                      draggable
-                      onDragStart={onDragStart(task.id)}
-                      className="flex items-center gap-2 mb-2 bg-gray-800 p-2 rounded"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={!!task.isDone}
-                        onChange={() => toggleTask(task)}
-                      />
-                      <span className={task.isDone ? "line-through text-gray-400" : ""}>{task.content}</span>
-                      <button
-                        className="ml-auto text-blue-400 hover:text-blue-600 mr-2"
-                        onClick={() => openEditModal(task)}
-                        title="Editar tarea"
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        className="text-red-400 hover:text-red-600"
-                        onClick={() => deleteTask(task.id)}
-                        title="Eliminar tarea"
-                      >
-                        🗑
-                      </button>
-                    </li>
-                  ))}
-              </ul>
-              {/* Add task to this list */}
               <form
                 onSubmit={e => addTaskToList(e, list.id)}
                 className="flex gap-2 mt-2"
               >
                 <input
-                  name="newTask"
                   className="flex-1 p-2 rounded bg-gray-800 border border-gray-700 text-white"
-                  placeholder="Añadir tarea a la lista"
                   value={listTaskInputs[list.id] || ""}
                   onChange={e =>
                     setListTaskInputs(inputs => ({
@@ -366,11 +537,172 @@ export default function TasksBoard({ userId }: { userId: number }) {
                       [list.id]: e.target.value,
                     }))
                   }
+                  placeholder="Nueva tarea en lista"
                 />
-                <button className="bg-[var(--accent)] px-2 py-1 rounded text-white font-semibold" type="submit">
+                <button className="bg-[var(--accent)] px-4 py-2 rounded text-white font-semibold" type="submit">
                   Añadir
                 </button>
               </form>
+              <ul className="space-y-2 mt-4">
+                {tasks.filter(t => t.taskListId === list.id).map(task => {
+                  const days = daysUntil(task.dueDate);
+                  return (
+                    <li
+                      key={task.id}
+                      draggable={editingTaskId !== task.id}
+                      onDragStart={editingTaskId !== task.id ? onDragStart(task.id) : undefined}
+                      className={`flex flex-col gap-1 mb-2 bg-gray-800 p-2 rounded ${shinyId === task.id ? "shine-and-scale" : ""}`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={!!task.isDone}
+                          onChange={() => toggleTask(task)}
+                        />
+                        <span className={task.isDone ? "line-through text-gray-400 flex-1" : "flex-1"}>
+                          {task.content}
+                          {typeof days === "number" && (
+                            <span className="ml-2 text-xs text-gray-400 font-semibold">
+                              {days === 0
+                                ? "hoy"
+                                : days > 0
+                                ? `${days} días`
+                                : `${Math.abs(days)} días atrás`}
+                            </span>
+                          )}
+                        </span>
+                        {/* TAG BUTTON */}
+                        <button
+                          className="ml-2 px-2 py-1 rounded bg-yellow-500 hover:bg-yellow-600"
+                          title="Etiquetas"
+                          onClick={() => setShowTagModalForTask(task.id)}
+                          type="button"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                            <path fillRule="evenodd" d="M4.5 2A2.5 2.5 0 0 0 2 4.5v3.879a2.5 2.5 0 0 0 .732 1.767l7.5 7.5a2.5 2.5 0 0 0 3.536 0l3.878-3.878a2.5 2.5 0 0 0 0-3.536l-7.5-7.5A2.5 2.5 0 0 0 8.38 2H4.5ZM5 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                        <button
+                          className="ml-2 text-red-400 hover:text-red-600"
+                          onClick={() => deleteTask(task.id)}
+                          title="Eliminar tarea"
+                        >
+                          🗑
+                        </button>
+                        <button
+                          className="text-gray-400 hover:text-blue-500 transition"
+                          title="Editar tarea"
+                          onClick={e => {
+                            e.stopPropagation();
+                            openEditDropdown(task);
+                          }}
+                        >
+                          ✏️
+                        </button>
+                      </div>
+                      {/* Tags display */}
+                      <div className="flex gap-1 ml-6 flex-wrap">
+                        {(task.tags || []).map((tag) => (
+                          <span
+                            key={tag.id}
+                            className="flex items-center gap-1 px-2 py-1 rounded text-xs"
+                            style={{ background: tag.color, color: "#fff" }}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
+                              <path fillRule="evenodd" d="M4.5 2A2.5 2.5 0 0 0 2 4.5v3.879a2.5 2.5 0 0 0 .732 1.767l7.5 7.5a2.5 2.5 0 0 0 3.536 0l3.878-3.878a2.5 2.5 0 0 0 0-3.536l-7.5-7.5A2.5 2.5 0 0 0 8.38 2H4.5ZM5 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clipRule="evenodd" />
+                            </svg>
+                            {tag.name}
+                          </span>
+                        ))}
+                      </div>
+                      {/* Tag Picker Modal */}
+                      {showTagModalForTask === task.id && (
+                        <TagPickerModal
+                          tags={tags}
+                          selectedTagIds={(task.tags || []).map(t => t.id)}
+                          onToggle={handleToggleTaskTag}
+                          onClose={() => setShowTagModalForTask(null)}
+                          onEdit={onEditTag}
+                          onDelete={onDeleteTag}
+                          onCreate={onCreateTag}
+                        />
+                      )}
+                      {/* Inline edit dropdown */}
+                      {editingTaskId === task.id && (
+                        <div
+                          ref={editDropdownRef}
+                          className="transition-all duration-300 overflow-hidden bg-gray-900 rounded-lg border border-gray-700 mt-2 max-h-[400px] opacity-100 p-4"
+                          style={{
+                            pointerEvents: "auto",
+                          }}
+                        >
+                          <form
+                            onSubmit={e => {
+                              e.preventDefault();
+                              saveEdit();
+                            }}
+                            className="flex flex-col gap-2"
+                          >
+                            <input
+                              className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[var(--accent)] transition"
+                              value={editContent}
+                              onChange={e => setEditContent(e.target.value)}
+                              disabled={savingEdit}
+                              autoFocus
+                            />
+                            <textarea
+                              className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[var(--accent)] transition"
+                              value={editDescription}
+                              onChange={e => setEditDescription(e.target.value)}
+                              disabled={savingEdit}
+                              placeholder="Descripción"
+                            />
+                            <input
+                              type="datetime-local"
+                              className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[var(--accent)] transition"
+                              value={editDueDate || ""}
+                              onChange={e => setEditDueDate(e.target.value)}
+                              disabled={savingEdit}
+                            />
+                            <input
+                              type="datetime-local"
+                              className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[var(--accent)] transition"
+                              value={editReminderDate || ""}
+                              onChange={e => setEditReminderDate(e.target.value)}
+                              onBlur={() => {
+                                // If the user is clicking outside, ensure the latest value is saved
+                                if (clickedOutside) {
+                                  setTimeout(() => {
+                                    saveEdit();
+                                  }, 0);
+                                }
+                              }}
+                              disabled={savingEdit}
+                            />
+                            <div className="flex gap-2 mt-2">
+                              <button
+                                className="bg-green-600 px-4 py-2 rounded text-white font-semibold"
+                                type="submit"
+                                disabled={savingEdit}
+                              >
+                                Guardar
+                              </button>
+                              <button
+                                className="bg-gray-700 px-4 py-2 rounded text-white font-semibold"
+                                type="button"
+                                onClick={() => setEditingTaskId(null)}
+                                disabled={savingEdit}
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          </form>
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
           ))}
         </div>
@@ -378,77 +710,31 @@ export default function TasksBoard({ userId }: { userId: number }) {
       {/* Delete List Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
-          <div className="bg-[var(--panel)] p-8 rounded-2xl shadow-2xl w-full max-w-md flex flex-col gap-4 border border-[var(--border)]">
-            <h2 className="text-xl font-bold text-white mb-2">
-              ¿Eliminar la lista? Las tareas pasarán a "tareas sueltas".
-            </h2>
-            <div className="flex flex-col gap-2">
+          <div className="bg-[var(--panel)] rounded-xl p-6 relative">
+            <button
+              className="absolute top-3 right-3 text-gray-400 hover:text-red-600 text-2xl"
+              onClick={() => setShowDeleteModal(false)}
+              aria-label="Cerrar"
+            >
+              ×
+            </button>
+            <div className="text-lg font-bold mb-4">¿Eliminar lista?</div>
+            <p className="mb-4">Las tareas se moverán a "Tareas sueltas".</p>
+            <div className="flex gap-2">
               <button
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-semibold"
+                className="bg-red-600 text-white px-4 py-2 rounded"
                 onClick={handleDeleteList}
               >
-                Eliminar lista
+                Eliminar
               </button>
               <button
-                className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 font-semibold"
+                className="bg-gray-400 text-white px-4 py-2 rounded"
                 onClick={() => setShowDeleteModal(false)}
               >
                 Cancelar
               </button>
             </div>
           </div>
-        </div>
-      )}
-      {/* Edit Task Modal */}
-      {showEditModal && editTask && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
-          <form
-            className="bg-[var(--panel)] p-8 rounded-2xl shadow-2xl w-full max-w-md flex flex-col gap-4 border border-[var(--border)]"
-            onSubmit={handleSaveEdit}
-          >
-            <h2 className="text-xl font-bold text-white mb-2">Editar tarea</h2>
-            <label className="text-white font-semibold">Contenido</label>
-            <input
-              className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[var(--accent)] transition"
-              value={editContent}
-              onChange={e => setEditContent(e.target.value)}
-              required
-              disabled={savingEdit}
-            />
-            <label className="text-white font-semibold mt-2">Fecha límite (opcional)</label>
-            <input
-              type="datetime-local"
-              className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[var(--accent)] transition"
-              value={editDueDate || ""}
-              onChange={e => setEditDueDate(e.target.value)}
-              disabled={savingEdit}
-            />
-            <label className="text-white font-semibold mt-2">Recordatorio (opcional)</label>
-            <input
-              type="datetime-local"
-              className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[var(--accent)] transition"
-              value={editReminder || ""}
-              onChange={e => setEditReminder(e.target.value)}
-              disabled={savingEdit}
-            />
-            <div className="flex justify-end gap-2 mt-4">
-              <button
-                type="button"
-                className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 font-semibold"
-                onClick={() => setShowEditModal(false)}
-                disabled={savingEdit}
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold"
-                disabled={savingEdit}
-              >
-                Guardar
-              </button>
-            </div>
-          </form>
         </div>
       )}
     </div>
