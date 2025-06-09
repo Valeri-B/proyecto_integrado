@@ -6,8 +6,8 @@ export class RemindersController {
     constructor(private readonly remindersService: RemindersService) { }
 
     @Post()
-    async createReminder(@Body() body: { taskId: number; remindAt: Date }) {
-        return this.remindersService.createReminder(body.taskId, body.remindAt);
+    async upsertReminder(@Body() body: { taskId: number; remindAt: Date }) {
+        return this.remindersService.upsertReminder(body.taskId, body.remindAt);
     }
 
     @Get(':taskId')

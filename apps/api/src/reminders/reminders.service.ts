@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, LessThanOrEqual } from 'typeorm';
 import { Reminders } from '../entities/Reminders';
 import { Tasks } from '../entities/Tasks';
 
@@ -40,17 +40,21 @@ export class RemindersService {
     }
 
     async getActiveReminders(userId: number) {
+        const now = new Date();
         const reminders = await this.reminderRepo.find({
-            where: { dismissed: false, task: { user: { id: userId } } },
+            where: {
+                dismissed: false,
+                task: { user: { id: userId } },
+                remindAt: LessThanOrEqual(now),
+            },
             relations: ['task'],
         });
-        // Map to include task content and isDone
         return reminders.map(r => ({
             id: r.id,
             taskId: r.task.id,
             remindAt: r.remindAt,
-            content: r.task.content, // Use the actual task content
-            isDone: r.task.isDone,   // Add isDone for checkbox state
+            content: r.task.content,
+            isDone: r.task.isDone,
         }));
     }
 
@@ -60,5 +64,18 @@ export class RemindersService {
         reminder.dismissed = true;
         await this.reminderRepo.save(reminder);
         return { dismissed: true };
+    }
+
+    async upsertReminder(taskId: number, remindAt: Date) {
+        const task = await this.taskRepo.findOne({ where: { id: taskId } });
+        if (!task) throw new NotFoundException('Task not found');
+        let reminder = await this.reminderRepo.findOne({ where: { task: { id: taskId }, dismissed: false } });
+        if (reminder) {
+            reminder.remindAt = remindAt;
+            return this.reminderRepo.save(reminder);
+        } else {
+            reminder = this.reminderRepo.create({ task, remindAt });
+            return this.reminderRepo.save(reminder);
+        }
     }
 }
