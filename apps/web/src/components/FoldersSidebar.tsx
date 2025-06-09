@@ -23,10 +23,9 @@ type Props = {
   collapsed?: boolean;
   onCollapse?: () => void;
   onMove?: () => void; // callback to refetch after move
-  onSelectNote?: (note: Note) => void; // NEW
+  onSelectNote?: (note: Note) => void;
 };
 
-// For a note, folderId might be note.folderId or note.folder?.id
 const getNoteFolderId = (note: any) =>
   typeof note.folderId === "number"
     ? note.folderId
@@ -61,7 +60,7 @@ function FolderNode({
   collapsedFolders,
   setCollapsedFolders,
   onMove,
-  onSelectNote, // NEW
+  onSelectNote,
 }: any) {
   const isCollapsed = collapsedFolders.has(folder.id);
   const hasChildren = folder.children && folder.children.length > 0;
@@ -85,7 +84,7 @@ function FolderNode({
           const payload = token ? JSON.parse(atob(token.split(".")[1])) : {};
           const userId = payload.sub;
           await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777"}/folders/${id}/move`,
+            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777/api"}/folders/${id}/move`,
             {
               method: "PATCH",
               headers: {
@@ -103,7 +102,7 @@ function FolderNode({
           const payload = token ? JSON.parse(atob(token.split(".")[1])) : {};
           const userId = payload.sub;
           await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777"}/notes/${id}/move`,
+            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777/api"}/notes/${id}/move`,
             {
               method: "PATCH",
               headers: {
@@ -163,7 +162,7 @@ function FolderNode({
             const payload = JSON.parse(atob(token.split(".")[1]));
             const userId = payload.sub;
             await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777"}/folders/${folder.id}?userId=${userId}`,
+              `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777/api"}/folders/${folder.id}?userId=${userId}`,
               { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
             );
             if (onMove) onMove();
@@ -205,7 +204,7 @@ function FolderNode({
                 collapsedFolders={collapsedFolders}
                 setCollapsedFolders={setCollapsedFolders}
                 onMove={onMove}
-                onSelectNote={onSelectNote} // NEW
+                onSelectNote={onSelectNote}
               />
             ))}
         </ul>
@@ -222,12 +221,11 @@ export default function FoldersSidebar({
   collapsed = false,
   onCollapse,
   onMove,
-  onSelectNote, // NEW
+  onSelectNote,
 }: Props) {
   const folderTree = buildFolderTree(folders);
   const [collapsedFolders, setCollapsedFolders] = React.useState<Set<number>>(new Set());
 
-  // Drag and drop for "Notas sin carpeta"
   return (
     <aside className={`transition-all duration-300 bg-gray-800 text-white border-r border-gray-700 p-4 ${collapsed ? "w-12" : "w-48"}`} style={{ overflow: "hidden" }}>
       <div className="flex items-center justify-between mb-4">
@@ -251,7 +249,7 @@ export default function FoldersSidebar({
                 const payload = token ? JSON.parse(atob(token.split(".")[1])) : {};
                 const userId = payload.sub;
                 await fetch(
-                  `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777"}/notes/${id}/move`,
+                  `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777/api"}/notes/${id}/move`,
                   {
                     method: "PATCH",
                     headers: {
@@ -269,7 +267,7 @@ export default function FoldersSidebar({
                 const payload = token ? JSON.parse(atob(token.split(".")[1])) : {};
                 const userId = payload.sub;
                 await fetch(
-                  `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777"}/folders/${id}/move`,
+                  `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777/api"}/folders/${id}/move`,
                   {
                     method: "PATCH",
                     headers: {
@@ -296,7 +294,10 @@ export default function FoldersSidebar({
                     e.dataTransfer.setData("id", note.id);
                   }}
                   className="flex items-center gap-2 py-1 cursor-pointer hover:underline"
-                  onClick={() => onSelectNote && onSelectNote(note)} // NEW
+                  onClick={e => {
+                    e.stopPropagation();
+                    onSelectNote && onSelectNote(note);
+                  }}
                 >
                   <img src="/icons_svg/note_icon_fill_when_clicked.svg" alt="Nota" className="w-4 h-4" />
                   {note.title}
@@ -314,7 +315,7 @@ export default function FoldersSidebar({
               collapsedFolders={collapsedFolders}
               setCollapsedFolders={setCollapsedFolders}
               onMove={onMove}
-              onSelectNote={onSelectNote} // NEW
+              onSelectNote={onSelectNote}
             />
           ))}
         </ul>

@@ -149,7 +149,7 @@ export default function Heatmap() {
   useEffect(() => {
     if (!userId) return;
     fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777"}/activity/user-heatmaps?userId=${userId}`
+      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777/api"}/activity/user-heatmaps?userId=${userId}`
     )
       .then(res => res.json())
       .then(data => {
@@ -163,13 +163,13 @@ export default function Heatmap() {
       });
   }, [userId]);
 
-  // Fetch all activities function (fixed parenthesis)
+  // Fetch all activities function
   const fetchAllActivities = async (userId: number, heatmaps: { type: string; color: string }[]) => {
     setLoading(true);
     const results = await Promise.all(
       heatmaps.map(h =>
         fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777"}/activity/heatmap?userId=${userId}&type=${h.type}`
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777/api"}/activity/heatmap?userId=${userId}&type=${h.type}`
         )
           .then(res => res.json())
           .then(data => ({
@@ -185,7 +185,7 @@ export default function Heatmap() {
             }, {}),
           }))
       )
-    ); // <-- CLOSES Promise.all HERE!
+    );
     const map: Record<string, Record<string, { count: number, color: string | null, times: string[] }>> = {};
     results.forEach(r => {
       map[r.type] = r.data;
@@ -194,7 +194,6 @@ export default function Heatmap() {
     setLoading(false);
   };
 
-  // useEffect now just calls the function
   useEffect(() => {
     if (!userId) return;
     fetchAllActivities(userId, heatmaps);
@@ -206,7 +205,7 @@ export default function Heatmap() {
     const heatmap = heatmaps.find(h => h.type === type);
     const todayLocal = getDateString(new Date());
     await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777"}/activity/log`,
+      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777/api"}/activity/log`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -357,7 +356,7 @@ export default function Heatmap() {
                   padding: "0.5rem",
                   backgroundColor: "#222",
                   borderRadius: 20,
-                  minHeight: 32, // Make the bar taller
+                  minHeight: 32,
                   alignItems: "center",
                 }}
               >
@@ -374,7 +373,7 @@ export default function Heatmap() {
                       title={`${DAY_LABELS[date.getDay()]} ${dateStr}: ${data?.count || 0} actividad`}
                       style={{
                         width: 18,
-                        height: 32, // Make the bar taller
+                        height: 32,
                         borderRadius: 6,
                         background: color,
                         border: "1px solid #333",
