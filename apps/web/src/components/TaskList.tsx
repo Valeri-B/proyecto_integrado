@@ -11,6 +11,8 @@ export default function TaskList({ noteId, userId }: { noteId?: number; userId?:
   const [newTask, setNewTask] = useState("");
   const [loading, setLoading] = useState(false);
   const [fabOpen, setFabOpen] = useState(false);
+  const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
+  const [shinyId, setShinyId] = useState<number | null>(null);
 
   // Fetch tasks for the note or all tasks for the user
   useEffect(() => {
@@ -99,6 +101,37 @@ export default function TaskList({ noteId, userId }: { noteId?: number; userId?:
     setFabOpen(false);
   };
 
+  const onDragStart = (taskId: number) => (e: React.DragEvent) => {
+    e.dataTransfer.setData("text/plain", String(taskId));
+    e.currentTarget.classList.add("opacity-50");
+  };
+
+  const onDragEnd = (e: React.DragEvent) => {
+    e.currentTarget.classList.remove("opacity-50");
+  };
+
+  const onDrop = async (e: React.DragEvent) => {
+    const sourceId = Number(e.dataTransfer.getData("text/plain"));
+    const targetId = Number((e.target as HTMLElement).closest("li")?.dataset.id);
+    if (isNaN(sourceId) || isNaN(targetId) || sourceId === targetId) return;
+
+    // Reorder logic here
+    const sourceIndex = tasks.findIndex(t => t.id === sourceId);
+    const targetIndex = tasks.findIndex(t => t.id === targetId);
+    const updatedTasks = [...tasks];
+    const [movedTask] = updatedTasks.splice(sourceIndex, 1);
+    updatedTasks.splice(targetIndex, 0, movedTask);
+
+    setTasks(updatedTasks);
+
+    // Optionally, persist the new order to the server
+    await fetch(`/api/tasks/reorder`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ taskId: movedTask.id, newOrder: targetIndex }),
+    });
+  };
+
   if (!noteId && !userId) return <div className="text-white">Selecciona una nota o usuario para ver las tareas.</div>;
 
   return (
@@ -120,20 +153,29 @@ export default function TaskList({ noteId, userId }: { noteId?: number; userId?:
       ) : (
         <ul className="space-y-2">
           {tasks.map(task => (
-            <li key={task.id} className="flex items-center gap-2 bg-gray-800 p-2 rounded">
-              <input
-                type="checkbox"
-                checked={!!task.isDone}
-                onChange={() => toggleTask(task)}
-              />
-              <span className={task.isDone ? "line-through text-gray-400" : ""}>{task.content}</span>
-              <button
-                className="ml-auto text-red-400 hover:text-red-600"
-                onClick={() => deleteTask(task.id)}
-                title="Eliminar tarea"
-              >
-                🗑
-              </button>
+            <li
+              key={task.id}
+              draggable={editingTaskId !== task.id}
+              onDragStart={editingTaskId !== task.id ? onDragStart(task.id) : undefined}
+              className={`flex flex-col gap-1 mb-2 bg-gray-800 p-2 rounded ${
+                shinyId === task.id ? "shine-and-scale" : ""
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={!!task.isDone}
+                  onChange={() => toggleTask(task)}
+                />
+                <span className={task.isDone ? "line-through text-gray-400" : ""}>{task.content}</span>
+                <button
+                  className="ml-auto text-red-400 hover:text-red-600"
+                  onClick={() => deleteTask(task.id)}
+                  title="Eliminar tarea"
+                >
+                  🗑
+                </button>
+              </div>
             </li>
           ))}
         </ul>
