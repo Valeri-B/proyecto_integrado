@@ -30,8 +30,8 @@ const getNoteFolderId = (note: any) =>
   typeof note.folderId === "number"
     ? note.folderId
     : note.folder && typeof note.folder.id === "number"
-    ? note.folder.id
-    : null;
+      ? note.folder.id
+      : null;
 
 function buildFolderTree(folders: any[]) {
   const map = new Map();
@@ -136,7 +136,18 @@ function FolderNode({
             className="mr-2 cursor-pointer select-none"
             title={isCollapsed ? "Expandir" : "Colapsar"}
           >
-            {isCollapsed ? "▶" : "▼"}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              className={`size-4 transition-transform duration-200 ${isCollapsed ? "" : ""}`}
+            >
+              <path
+                fillRule="evenodd"
+                d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z"
+                clipRule="evenodd"
+              />
+            </svg>
           </span>
         )}
         {/* Folder SVG */}
@@ -168,7 +179,10 @@ function FolderNode({
             if (onMove) onMove();
           }}
         >
-          <img src="/icons_svg/trash_can.svg" alt="Eliminar" className="w-4 h-4" />
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+            <path fill-rule="evenodd" d="M5 3.25V4H2.75a.75.75 0 0 0 0 1.5h.3l.815 8.15A1.5 1.5 0 0 0 5.357 15h5.285a1.5 1.5 0 0 0 1.493-1.35l.815-8.15h.3a.75.75 0 0 0 0-1.5H11v-.75A2.25 2.25 0 0 0 8.75 1h-1.5A2.25 2.25 0 0 0 5 3.25Zm2.25-.75a.75.75 0 0 0-.75.75V4h3v-.75a.75.75 0 0 0-.75-.75h-1.5ZM6.05 6a.75.75 0 0 1 .787.713l.275 5.5a.75.75 0 0 1-1.498.075l-.275-5.5A.75.75 0 0 1 6.05 6Zm3.9 0a.75.75 0 0 1 .712.787l-.275 5.5a.75.75 0 0 1-1.498-.075l.275-5.5a.75.75 0 0 1 .786-.711Z" clip-rule="evenodd" />
+          </svg>
+
         </button>
       </div>
       {!isCollapsed && (
@@ -227,11 +241,55 @@ export default function FoldersSidebar({
   const [collapsedFolders, setCollapsedFolders] = React.useState<Set<number>>(new Set());
 
   return (
-    <aside className={`transition-all duration-300 bg-gray-800 text-white border-r border-gray-700 p-4 ${collapsed ? "w-12" : "w-48"}`} style={{ overflow: "hidden" }}>
+    <aside
+      className={`
+    flex flex-col
+    border-r border-[var(--border)]
+    shadow-lg
+    transition-all duration-300
+    backdrop-blur-lg
+    backdrop-saturate-200
+    glass-border
+    ${collapsed ? "w-12 p-2" : "w-64 p-6"}
+    bg-clip-padding
+  `}
+      style={{
+        minWidth: collapsed ? 56 : 256,
+        background: "var(--glass-bg)", 
+        backdropFilter: "blur(1.5px)",
+        WebkitBackdropFilter: "blur(1.5px)",
+        borderRadius: 0, 
+        borderRight: "1px solid var(--border)",
+        overflow: "hidden",
+      }}
+    >
       <div className="flex items-center justify-between mb-4">
         {!collapsed && <h2 className="text-lg font-bold">Folders</h2>}
-        <button className="p-1 rounded hover:bg-gray-700" onClick={onCollapse} title={collapsed ? "Expandir" : "Colapsar"}>
-          <span className="text-xl">{collapsed ? "»" : "«"}</span>
+        <button
+          className={`
+    flex items-center justify-center
+    border border-transparent hover:border-[var(--border)] transition
+    rounded-xl
+    w-10 h-10
+    bg-transparent
+  `}
+          onClick={onCollapse}
+          title={collapsed ? "Expandir" : "Colapsar"}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-7 h-7 sidebar-toggle-icon"
+          >
+            <path
+              d="M11 5V19M6 8H8M6 11H8M6 14H8M6.2 19H17.8C18.9201 19 19.4802 19 19.908 18.782C20.2843 18.5903 20.5903 18.2843 20.782 17.908C21 17.4802 21 16.9201 21 15.8V8.2C21 7.0799 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V15.8C3 16.9201 3 17.4802 3.21799 17.908C3.40973 18.2843 3.71569 18.5903 4.09202 18.782C4.51984 19 5.07989 19 6.2 19Z"
+              stroke="var(--sidebar-toggle-icon)"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </button>
       </div>
       {!collapsed && (
