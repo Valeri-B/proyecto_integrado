@@ -668,6 +668,11 @@ export default function Home() {
             onDeleteTag={handleDeleteTag}
             showTagsModal={showTagsModal}
             setShowTagsModal={setShowTagsModal}
+            onCalendarDayClick={(date: Date) => {
+              setSelectedDate(date);
+              setShowTaskModal(true);
+              setNewTaskContent("");
+            }}
           />
           {showGlobalSearch && (
             <GlobalSearch
@@ -713,8 +718,146 @@ export default function Home() {
               userId={userId}
             />
           )}
+          {showTaskModal && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center">
+              <DraggableTaskModal
+                selectedDate={selectedDate}
+                newTaskContent={newTaskContent}
+                setNewTaskContent={setNewTaskContent}
+                creatingTask={creatingTask}
+                onClose={() => setShowTaskModal(false)}
+                onSubmit={handleCreateTaskForDate}
+              />
+            </div>
+          )}
         </>
       )}
     </div>
+  );
+}
+
+function DraggableTaskModal({ selectedDate, newTaskContent, setNewTaskContent, creatingTask, onClose, onSubmit }: {
+  selectedDate: Date | null;
+  newTaskContent: string;
+  setNewTaskContent: (s: string) => void;
+  creatingTask: boolean;
+  onClose: () => void;
+  onSubmit: (e: React.FormEvent) => void;
+}) {
+  const [drag, setDrag] = React.useState<{ x: number; y: number; offsetX: number; offsetY: number } | null>(null);
+  const [modalPos, setModalPos] = React.useState<{ x: number; y: number } | null>(null);
+  const modalRef = React.useRef<HTMLFormElement>(null);
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (modalRef.current) {
+      const rect = modalRef.current.getBoundingClientRect();
+      setDrag({
+        x: rect.left,
+        y: rect.top,
+        offsetX: e.clientX - rect.left,
+        offsetY: e.clientY - rect.top,
+      });
+    }
+  };
+
+  React.useEffect(() => {
+    if (!drag) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      setModalPos({
+        x: e.clientX - drag.offsetX,
+        y: e.clientY - drag.offsetY,
+      });
+    };
+    const handleMouseUp = () => setDrag(null);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    document.body.classList.add("no-select");
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+      document.body.classList.remove("no-select");
+    };
+  }, [drag]);
+
+  React.useEffect(() => {
+    if (!modalPos && !drag) setModalPos(null);
+  }, [drag, modalPos]);
+
+  return (
+    <form
+      ref={modalRef}
+      className="bg-[var(--glass-bg)] rounded-2xl shadow-2xl border glass-border p-8 max-w-md w-full flex flex-col gap-4 backdrop-blur-lg backdrop-saturate-200 animate-scale-in"
+      onSubmit={onSubmit}
+      style={{
+        background: "var(--glass-bg)",
+        backdropFilter: "blur(8px) saturate(180%)",
+        WebkitBackdropFilter: "blur(8px) saturate(180%)",
+        border: "1px solid var(--border)",
+        position: "fixed",
+        left: modalPos ? modalPos.x : "50%",
+        top: modalPos ? modalPos.y : "50%",
+        transform: modalPos ? "none" : "translate(-50%, -50%)",
+        cursor: drag ? "move" : "default",
+        zIndex: 100,
+      }}
+    >
+      <div
+        className="w-full h-6 cursor-move flex items-center justify-between"
+        style={{ marginBottom: 8 }}
+        onMouseDown={handleMouseDown}
+      >
+        <div className="font-bold text-lg px-4 py-1">
+          New task for {selectedDate?.toLocaleDateString()}
+        </div>
+        <button type="button" className="text-2xl" onClick={onClose}>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
+            <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+          </svg>
+        </button>
+      </div>
+      <input
+        className="p-2 rounded-xl border border-gray-700 fab-modal-create-btn text-base"
+        placeholder="Task name"
+        value={newTaskContent}
+        onChange={e => setNewTaskContent(e.target.value)}
+        required
+        autoFocus
+      />
+      <div className="flex gap-4 mt-6 justify-center">
+        <button
+          className="fab-modal-create-btn px-8 py-1 font-semibold rounded-full text-base"
+          type="submit"
+          disabled={creatingTask}
+          style={{
+            background: "var(--glass-bg)",
+            border: "1px solid var(--border)",
+            backdropFilter: "blur(8px) saturate(180%)",
+            WebkitBackdropFilter: "blur(8px) saturate(180%)",
+            color: "var(--new-note-modal-text)",
+            boxShadow: "0 4px 32px 0 rgba(0,0,0,0.08)",
+            transition: "background 0.2s, box-shadow 0.2s, border-color 0.2s",
+          }}
+        >
+          Create
+        </button>
+        <button
+          className="fab-modal-create-btn px-8 py-1 font-semibold rounded-full text-base"
+          type="button"
+          onClick={onClose}
+          style={{
+            background: "var(--glass-bg)",
+            border: "1px solid var(--border)",
+            backdropFilter: "blur(8px) saturate(180%)",
+            WebkitBackdropFilter: "blur(8px) saturate(180%)",
+            color: "var(--new-note-modal-text)",
+            boxShadow: "0 4px 32px 0 rgba(0,0,0,0.08)",
+            transition: "background 0.2s, box-shadow 0.2s, border-color 0.2s",
+          }}
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
   );
 }
