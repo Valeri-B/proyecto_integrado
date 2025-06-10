@@ -35,12 +35,16 @@
   --note-icon-search-result: #DC143C;
   --task-icon-search-result: #DC143C;
   --tag-result-modal-text: #DC143C;
-  --new-note-modal-text: #EEEEEE;
-  --new-note-modal-select-bg: #1D1616;
-  --new-folder-modal-text: #EEEEEE;
-  --new-folder-modal-select-bg: #1D1616;
+  --new-note-modal-text: #1D1616;
+  --new-note-modal-select-bg: #EEEEEE;
+  --new-folder-modal-text: #1D1616;
+  --new-folder-modal-select-bg: #EEEEEE;
   --search-tag-text: #1D1616;
-
+  --folders-sidebar-text: #1D1616;
+  --folders-sidebar-note-icon: #1D1616;
+  --note-icon-smallSidebar: #1D1616;
+  --tasks-icon-smallSidebar: #1D1616;
+  --admin-icon-smallSidebar: #1D1616;
 }
 
 /* Dark mode via prefers-color-scheme */
@@ -83,6 +87,11 @@
     --new-folder-modal-text: #EEEEEE;
     --new-folder-modal-select-bg: #1D1616;
     --search-tag-text: #EEEEEE;
+    --folders-sidebar-text: #EEEEEE;
+    --folders-sidebar-note-icon: #EEEEEE;
+    --note-icon-smallSidebar: #EEEEEE;
+    --tasks-icon-smallSidebar: #EEEEEE;
+    --admin-icon-smallSidebar: #EEEEEE;
   }
 }
 
@@ -125,6 +134,11 @@
   --new-folder-modal-text: #EEEEEE;
   --new-folder-modal-select-bg: #1D1616;
   --search-tag-text: #EEEEEE;
+  --folders-sidebar-text: #EEEEEE;
+  --folders-sidebar-note-icon: #EEEEEE;
+  --note-icon-smallSidebar: #EEEEEE;
+  --tasks-icon-smallSidebar: #EEEEEE;
+  --admin-icon-smallSidebar: #EEEEEE;
 }
 
 /* Manual override: light */
@@ -162,11 +176,16 @@
   --note-icon-search-result: #DC143C;
   --task-icon-search-result: #DC143C;
   --tag-result-modal-text: #DC143C;
-  --new-note-modal-text: #EEEEEE;
-  --new-note-modal-select-bg: #1D1616;
-  --new-folder-modal-text: #EEEEEE;
-  --new-folder-modal-select-bg: #1D1616;
+  --new-note-modal-text: #1D1616;
+  --new-note-modal-select-bg: #EEEEEE;
+  --new-folder-modal-text: #1D1616;
+  --new-folder-modal-select-bg: #EEEEEE;
   --search-tag-text: #1D1616;
+  --folders-sidebar-text: #1D1616;
+  --folders-sidebar-note-icon: #1D1616;
+  --note-icon-smallSidebar: #1D1616;
+  --tasks-icon-smallSidebar: #1D1616;
+  --admin-icon-smallSidebar: #1D1616;
 }
 
 body {
@@ -864,3 +883,27 @@ body {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px var(--accent), 0 4px 32px 0 rgba(0, 0, 0, 0.12);
 }
+
+
+/* Remove glassmorphism for FabModal in light mode */
+[data-theme="light"] .fab-modal-glass {
+  background: #fff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
+}
+
+@media (prefers-color-scheme: light) {
+  .fab-modal-glass {
+    background: #fff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border);
+  }
+}
+
+
+
+
