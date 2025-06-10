@@ -27,6 +27,7 @@ export default function ProductivityPanel({
   onDeleteTag,
   showTagsModal,
   setShowTagsModal,
+  onCalendarDayClick,
 }: {
   collapsed: boolean;
   setCollapsed: (b: boolean) => void;
@@ -49,6 +50,7 @@ export default function ProductivityPanel({
   onDeleteTag: (id: number) => void;
   showTagsModal: boolean;
   setShowTagsModal: (b: boolean) => void;
+  onCalendarDayClick?: (date: Date) => void;
 }) {
   const [showTagsModalLocal, setShowTagsModalLocal] = useState(false);
 
@@ -161,14 +163,14 @@ export default function ProductivityPanel({
       {calendarVisible && !productivityCollapsed && (
         <div
           className={`
-    bg-[var(--glass-bg)] rounded-xl p-4 mb-4 shadow-2xl
-    backdrop-blur-lg backdrop-saturate-100
-    calendar-animate
-    ${calendarVisible ? "" : "calendar-animate-hide"}
-  `}
+          bg-[var(--glass-bg)] rounded-xl p-4 mb-4 shadow-2xl
+          backdrop-blur-lg backdrop-saturate-100
+          calendar-animate
+          ${calendarVisible ? "" : "calendar-animate-hide"}
+        `}
         >
           <Calendar
-            onClickDay={() => { }}
+            onClickDay={onCalendarDayClick}
             className="rounded-xl"
           />
         </div>
