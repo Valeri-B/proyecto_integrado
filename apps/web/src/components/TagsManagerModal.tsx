@@ -22,8 +22,11 @@ export default function TagsManagerModal({
   const [showNew, setShowNew] = useState(false);
   const [newName, setNewName] = useState("");
   const [newColor, setNewColor] = useState("#8b232d");
+  const [drag, setDrag] = useState<{ x: number; y: number; offsetX: number; offsetY: number } | null>(null);
+  const [modalPos, setModalPos] = useState<{ x: number; y: number } | null>(null);
   const editRef = useRef<HTMLInputElement>(null);
   const colorRef = useRef<HTMLInputElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   // --- Track if color picker is open ---
   const colorPickerOpen = useRef(false);
@@ -65,38 +68,82 @@ export default function TagsManagerModal({
 
   const filtered = tags.filter(t => t.name.toLowerCase().includes(search.toLowerCase()));
 
+  // Start dragging
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (modalRef.current) {
+      const rect = modalRef.current.getBoundingClientRect();
+      setDrag({
+        x: rect.left,
+        y: rect.top,
+        offsetX: e.clientX - rect.left,
+        offsetY: e.clientY - rect.top,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (!drag) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      setModalPos({
+        x: e.clientX - drag.offsetX,
+        y: e.clientY - drag.offsetY,
+      });
+    };
+    const handleMouseUp = () => setDrag(null);
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    document.body.classList.add("no-select");
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+      document.body.classList.remove("no-select");
+    };
+  }, [drag]);
+
+  // Reset to center when opened
+  useEffect(() => {
+    if (!modalPos && !drag) {
+      // Center modal by default
+      setModalPos(null);
+    }
+  }, [drag, modalPos]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto">
       <div
-        className="
-          rounded-4xl
-          p-8
-          max-w-2xl
-          relative
-          border
-          glass-border
-          shadow-2xl
-          flex flex-col
-          bg-clip-padding
-          animate-scale-in
-        "
+        ref={modalRef}
+        className="rounded-4xl p-8 max-w-2xl relative border glass-border shadow-2xl flex flex-col bg-clip-padding animate-scale-in"
         style={{
           background: "var(--glass-bg)",
           backdropFilter: "blur(16px) saturate(200%)",
           WebkitBackdropFilter: "blur(16px) saturate(200%)",
           border: "1px solid var(--border)",
           position: "fixed",
-          left: "50%",
-          top: "50%",
-          transform: "translate(-50%, -50%)",
+          left: modalPos ? modalPos.x : "50%",
+          top: modalPos ? modalPos.y : "50%",
+          transform: modalPos ? "none" : "translate(-50%, -50%)",
           minWidth: 420,
           maxWidth: 600,
+          cursor: drag ? "move" : "default",
+          zIndex: 100,
         }}
       >
-        <button className="absolute top-3 right-3 text-2xl" onClick={onClose}><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
-          <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
-        </svg>
-        </button>
+        {/* Drag handle */}
+        <div
+          className="w-full h-6 cursor-move flex items-center justify-between"
+          style={{ marginBottom: 8 }}
+          onMouseDown={handleMouseDown}
+        >
+          <span className="font-bold text-lg">Tags Manager</span>
+          <button className="text-2xl" onClick={onClose}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
+              <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+            </svg>
+          </button>
+        </div>
         <div className="flex gap-2 mb-4">
           <input
             className="flex-1 p-2 rounded-xl border border-gray-700"
@@ -110,7 +157,7 @@ export default function TagsManagerModal({
           </button>
         </div>
         {showNew && (
-            <div className="flex gap-2 mb-4 items-center">
+          <div className="flex gap-2 mb-4 items-center">
             <input
               className="flex-1 p-2 rounded-xl border border-gray-700"
               placeholder="Nombre"
@@ -122,15 +169,17 @@ export default function TagsManagerModal({
               type="color"
               value={newColor}
               onChange={e => setNewColor(e.target.value)}
-              className="w-8 h-8 border-none rounded-full"
+              className="w-10 h-10 border-none rounded-full glass-border bg-[var(--glass-bg)] backdrop-blur-lg backdrop-saturate-200 transition"
             />
             <button
-              className="bg-green-600 text-white px-3 py-1 rounded-full"
+              className="bg-green-600 text-white px-6 py-2 font-semibold rounded-full glass-border backdrop-blur-lg backdrop-saturate-200 fab-modal-create-btn"
               onClick={() => {
                 onCreate(newName, newColor);
                 setNewName(""); setNewColor("#8b232d"); setShowNew(false);
               }}
-            >Create</button>
+            >
+              Create
+            </button>
           </div>
         )}
         <ul>
@@ -164,7 +213,7 @@ export default function TagsManagerModal({
                     onChange={e => setEditColor(e.target.value)}
                     onMouseDown={handleColorMouseDown}
                     onBlur={handleColorBlur}
-                    className="w-8 h-8 border-none rounded-full"
+                    className="w-8 h-8 border-none rounded-full glass-border"
                   />
                   <span className="w-8 h-8" />
                 </>
