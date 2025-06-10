@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function FabModal({
   fabMode,
@@ -33,15 +33,62 @@ export default function FabModal({
   parentFolderId: number | null;
   setParentFolderId: (id: number | null) => void;
 }) {
+  const [drag, setDrag] = useState<{ x: number; y: number; offsetX: number; offsetY: number } | null>(null);
+  const [modalPos, setModalPos] = useState<{ x: number; y: number } | null>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+
   // Reset parent folder when modal closes
   useEffect(() => {
     if (!fabMode) setParentFolderId(null);
   }, [fabMode, setParentFolderId]);
 
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (modalRef.current) {
+      const rect = modalRef.current.getBoundingClientRect();
+      setDrag({
+        x: rect.left,
+        y: rect.top,
+        offsetX: e.clientX - rect.left,
+        offsetY: e.clientY - rect.top,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (!drag) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      setModalPos({
+        x: e.clientX - drag.offsetX,
+        y: e.clientY - drag.offsetY,
+      });
+    };
+    const handleMouseUp = () => setDrag(null);
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    document.body.classList.add("no-select");
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+      document.body.classList.remove("no-select");
+    };
+  }, [drag]);
+
+  // Reset to center when opened
+  useEffect(() => {
+    if (!modalPos && !drag) {
+      setModalPos(null);
+    }
+  }, [drag, modalPos]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto">
       <div
+        ref={modalRef}
         className="
+          fab-modal-glass
           backdrop-blur-lg
           backdrop-saturate-200
           border
@@ -58,11 +105,30 @@ export default function FabModal({
         "
         style={{
           background: "var(--glass-bg)",
+          position: "fixed",
+          left: modalPos ? modalPos.x : "50%",
+          top: modalPos ? modalPos.y : "50%",
+          transform: modalPos ? "none" : "translate(-50%, -50%)",
+          cursor: drag ? "move" : "default",
+          zIndex: 100,
         }}
       >
+        <div
+          className="w-full h-6 cursor-move flex items-center justify-between"
+          style={{ marginBottom: 8 }}
+          onMouseDown={handleMouseDown}
+        >
+          <span className="font-bold text-lg">
+            {fabMode === "note" ? "New Note" : fabMode === "folder" ? "New Folder" : ""}
+          </span>
+          <button className="text-2xl" onClick={() => setShowFabModal(false)}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
+              <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+            </svg>
+          </button>
+        </div>
         {fabMode === "note" && (
           <form className="flex flex-col gap-4 mt-2" onSubmit={handleCreateNote}>
-            <h2 className="text-lg font-bold new-note-modal-text">New note</h2>
             <input
               className="p-2 rounded-xl border border-gray-700 new-note-modal-text"
               placeholder="Note Title"
@@ -83,7 +149,7 @@ export default function FabModal({
               ))}
             </select>
             <button
-              className="fab-modal-create-btn px-4 py-2 font-semibold rounded-2xl"
+              className="fab-modal-create-btn px-6 py-1 font-semibold rounded-full"
               type="submit"
               disabled={creating}
             >
@@ -93,7 +159,6 @@ export default function FabModal({
         )}
         {fabMode === "folder" && (
           <form className="flex flex-col gap-4 mt-2" onSubmit={handleCreateFolder}>
-            <h2 className="text-lg font-bold" style={{ color: "var(--new-folder-modal-text)" }}>New Folder</h2>
             <input
               className="p-2 rounded-xl border border-gray-700"
               placeholder="Folder Name"
@@ -118,26 +183,17 @@ export default function FabModal({
               type="color"
               value={newFolderColor}
               onChange={e => setNewFolderColor(e.target.value)}
-              className="w-8 h-8 border-none rounded-full"
+              className="w-80 h-8 border-none rounded-full glass-border"
             />
             <button
-              className="fab-modal-create-btn px-4 py-2 font-semibold rounded-2xl"
+              className="fab-modal-create-btn px-6 py-1 font-semibold rounded-full"
               type="submit"
               disabled={creating}
-              style={{ color: "var(--new-folder-modal-text)" }}
             >
               Create
             </button>
           </form>
         )}
-        <button
-          className="absolute top-3 right-3 text-2xl"
-          onClick={() => setShowFabModal(false)}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
-            <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
-          </svg>
-        </button>
       </div>
     </div>
   );
