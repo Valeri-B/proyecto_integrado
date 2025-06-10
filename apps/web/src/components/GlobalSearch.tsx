@@ -408,7 +408,7 @@ export default function GlobalSearch({
             });
           }}
         >
-          <span className="text-sm font-medium text-[var(--accent-muted)]">
+          <span className="font-bold text-lg">
             Global Search
           </span>
           <button
