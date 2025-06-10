@@ -118,8 +118,22 @@ function FolderNode({
       onDragOver={e => e.preventDefault()}
     >
       <div
-        className={`mb-2 cursor-pointer hover:bg-gray-700 rounded px-2 py-1 flex items-center ${selectedFolderId === folder.id ? "bg-gray-700" : ""}`}
-        style={{ marginLeft: level * 16 }}
+        className={`mb-2 cursor-pointer rounded-xl px-2 py-1 flex items-center transition-colors duration-150 ${
+          selectedFolderId === folder.id ? "bg-gray-700" : ""
+        } hover:bg-[var(--glass-bg)] hover:backdrop-blur-lg hover:backdrop-saturate-200 hover:shadow-lg hover:border hover:border-[var(--border)]`}
+        style={{
+          marginLeft: level * 16,
+          color: "var(--folders-sidebar-text)",
+          ...(selectedFolderId === folder.id
+            ? {
+                background: "var(--glass-bg)",
+                backdropFilter: "blur(8px) saturate(180%)",
+                WebkitBackdropFilter: "blur(8px) saturate(180%)",
+                border: "1px solid var(--border)",
+                boxShadow: "0 4px 32px 0 rgba(0,0,0,0.08)",
+              }
+            : {}),
+        }}
         onClick={() => onSelectFolder?.(folder.id)}
       >
         {hasChildren && (
@@ -133,21 +147,23 @@ function FolderNode({
                 return next;
               });
             }}
-            className="mr-2 cursor-pointer select-none"
+            className="mr-2 cursor-pointer select-none flex items-center"
             title={isCollapsed ? "Expandir" : "Colapsar"}
+            style={{ color: "var(--folders-sidebar-text)" }}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 16 16"
-              fill="currentColor"
-              className={`size-4 transition-transform duration-200 ${isCollapsed ? "" : ""}`}
-            >
-              <path
-                fillRule="evenodd"
-                d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z"
-                clipRule="evenodd"
-              />
-            </svg>
+            {isCollapsed ? (
+              // Closed: right arrow
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
+                <path fillRule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
+              </svg>
+
+            ) : (
+              // Open: down arrow
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
+                <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
+              </svg>
+
+            )}
           </span>
         )}
         {/* Folder SVG */}
@@ -161,7 +177,7 @@ function FolderNode({
           <path d="M40,12H22l-4-4H8c-2.2,0-4,1.8-4,4v24c0,2.2,1.8,4,4,4h29.7L44,29V16C44,13.8,42.2,12,40,12z"></path>
           <path d="M40,12H8c-2.2,0-4,1.8-4,4v20c0,2.2,1.8,4,4,4h32c2.2,0,4-1.8,4-4V16C44,13.8,42.2,12,40,12z"></path>
         </svg>
-        {folder.name}
+        <span style={{ color: "var(--folders-sidebar-text)" }}>{folder.name}</span>
         <button
           className="ml-auto p-1 hover:bg-gray-700 rounded"
           title="Eliminar carpeta"
@@ -179,8 +195,8 @@ function FolderNode({
             if (onMove) onMove();
           }}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
-            <path fill-rule="evenodd" d="M5 3.25V4H2.75a.75.75 0 0 0 0 1.5h.3l.815 8.15A1.5 1.5 0 0 0 5.357 15h5.285a1.5 1.5 0 0 0 1.493-1.35l.815-8.15h.3a.75.75 0 0 0 0-1.5H11v-.75A2.25 2.25 0 0 0 8.75 1h-1.5A2.25 2.25 0 0 0 5 3.25Zm2.25-.75a.75.75 0 0 0-.75.75V4h3v-.75a.75.75 0 0 0-.75-.75h-1.5ZM6.05 6a.75.75 0 0 1 .787.713l.275 5.5a.75.75 0 0 1-1.498.075l-.275-5.5A.75.75 0 0 1 6.05 6Zm3.9 0a.75.75 0 0 1 .712.787l-.275 5.5a.75.75 0 0 1-1.498-.075l.275-5.5a.75.75 0 0 1 .786-.711Z" clip-rule="evenodd" />
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
+            <path fillRule="evenodd" d="M5 3.25V4H2.75a.75.75 0 0 0 0 1.5h.3l.815 8.15A1.5 1.5 0 0 0 5.357 15h5.285a1.5 1.5 0 0 0 1.493-1.35l.815-8.15h.3a.75.75 0 0 0 0-1.5H11v-.75A2.25 2.25 0 0 0 8.75 1h-1.5A2.25 2.25 0 0 0 5 3.25Zm2.25-.75a.75.75 0 0 0-.75.75V4h3v-.75a.75.75 0 0 0-.75-.75h-1.5ZM6.05 6a.75.75 0 0 1 .787.713l.275 5.5a.75.75 0 0 1-1.498.075l-.275-5.5A.75.75 0 0 1 6.05 6Zm3.9 0a.75.75 0 0 1 .712.787l-.275 5.5a.75.75 0 0 1-1.498-.075l.275-5.5a.75.75 0 0 1 .786-.711Z" clipRule="evenodd" />
           </svg>
 
         </button>
@@ -199,11 +215,21 @@ function FolderNode({
                   e.dataTransfer.setData("id", note.id);
                 }}
                 className="flex items-center gap-2 py-1 cursor-pointer hover:underline"
-                style={{ marginLeft: (level + 1) * 16 }}
-                onClick={() => onSelectNote && onSelectNote(note)} // NEW
+                style={{ marginLeft: (level + 1) * 16, color: "var(--folders-sidebar-text)" }}
+                onClick={() => onSelectNote && onSelectNote(note)}
               >
-                <img src="/icons_svg/note_icon_fill_when_clicked.svg" alt="Nota" className="w-4 h-4" />
-                {note.title}
+                <svg
+                  width="1em"
+                  height="1em"
+                  viewBox="0 0 1024 1024"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-4 h-4"
+                  fill="currentColor"
+                  style={{ color: "var(--folders-sidebar-note-icon)" }}
+                >
+                  <rect x="192" y="192" width="640" height="640" rx="120" ry="120" />
+                </svg>
+                <span style={{ color: "var(--folders-sidebar-text)" }}>{note.title}</span>
               </li>
             ))}
           {folder.children &&
@@ -255,16 +281,16 @@ export default function FoldersSidebar({
   `}
       style={{
         minWidth: collapsed ? 56 : 256,
-        background: "var(--glass-bg)", 
+        background: "var(--glass-bg)",
         backdropFilter: "blur(1.5px)",
         WebkitBackdropFilter: "blur(1.5px)",
-        borderRadius: 0, 
+        borderRadius: 0,
         borderRight: "1px solid var(--border)",
         overflow: "hidden",
       }}
     >
       <div className="flex items-center justify-between mb-4">
-        {!collapsed && <h2 className="text-lg font-bold">Folders</h2>}
+        {!collapsed && <h2 className="text-lg font-bold" style={{ color: "var(--folders-sidebar-text)" }}>Folders</h2>}
         <button
           className={`
     flex items-center justify-center
@@ -293,90 +319,117 @@ export default function FoldersSidebar({
         </button>
       </div>
       {!collapsed && (
-        <ul className="list-none">
-          <li
-            className={`mb-2 cursor-pointer hover:bg-gray-700 rounded px-2 py-1 ${selectedFolderId === null ? "bg-gray-700" : ""}`}
-            onClick={() => onSelectFolder?.(null)}
-            onDrop={async e => {
-              e.stopPropagation();
-              const type = e.dataTransfer.getData("type");
-              const id = Number(e.dataTransfer.getData("id"));
-              if (type === "note") {
-                // Move note to root
-                const token = localStorage.getItem("token");
-                const payload = token ? JSON.parse(atob(token.split(".")[1])) : {};
-                const userId = payload.sub;
-                await fetch(
-                  `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777/api"}/notes/${id}/move`,
-                  {
-                    method: "PATCH",
-                    headers: {
-                      "Content-Type": "application/json",
-                      Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({ folderId: null, userId }),
-                  }
-                );
-                if (onMove) onMove();
-              }
-              if (type === "folder") {
-                // Move folder to root
-                const token = localStorage.getItem("token");
-                const payload = token ? JSON.parse(atob(token.split(".")[1])) : {};
-                const userId = payload.sub;
-                await fetch(
-                  `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777/api"}/folders/${id}/move`,
-                  {
-                    method: "PATCH",
-                    headers: {
-                      "Content-Type": "application/json",
-                      Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({ parentId: null, userId }),
-                  }
-                );
-                if (onMove) onMove();
-              }
-            }}
-            onDragOver={e => e.preventDefault()}
-          >
-            Zona Libre
-            <ul className="ml-4 list-none">
-              {notes.filter(note => getNoteFolderId(note) === null).map(note => (
-                <li
-                  key={note.id}
-                  draggable
-                  onDragStart={e => {
-                    e.stopPropagation();
-                    e.dataTransfer.setData("type", "note");
-                    e.dataTransfer.setData("id", note.id);
-                  }}
-                  className="flex items-center gap-2 py-1 cursor-pointer hover:underline"
-                  onClick={e => {
-                    e.stopPropagation();
-                    onSelectNote && onSelectNote(note);
-                  }}
-                >
-                  <img src="/icons_svg/note_icon_fill_when_clicked.svg" alt="Nota" className="w-4 h-4" />
-                  {note.title}
-                </li>
-              ))}
-            </ul>
-          </li>
-          {folderTree.map(folder => (
-            <FolderNode
-              key={folder.id}
-              folder={folder}
-              notes={notes}
-              selectedFolderId={selectedFolderId}
-              onSelectFolder={onSelectFolder}
-              collapsedFolders={collapsedFolders}
-              setCollapsedFolders={setCollapsedFolders}
-              onMove={onMove}
-              onSelectNote={onSelectNote}
-            />
-          ))}
-        </ul>
+        <div className="flex-1 overflow-y-auto" style={{ maxHeight: "calc(100vh - 120px)" }}>
+          <ul className="list-none">
+            <li
+              className={`mb-2 cursor-pointer rounded-xl px-2 py-1 flex items-center transition-colors duration-150 ${
+                selectedFolderId === null ? "bg-gray-700" : ""
+              } hover:bg-[var(--glass-bg)] hover:backdrop-blur-lg hover:backdrop-saturate-200 hover:shadow-lg hover:border hover:border-[var(--border)]`}
+              style={{
+                color: "var(--folders-sidebar-text)",
+                ...(selectedFolderId === null
+                  ? {
+                      background: "var(--glass-bg)",
+                      backdropFilter: "blur(8px) saturate(180%)",
+                      WebkitBackdropFilter: "blur(8px) saturate(180%)",
+                      border: "1px solid var(--border)",
+                      boxShadow: "0 4px 32px 0 rgba(0,0,0,0.08)",
+                    }
+                  : {}),
+              }}
+              onClick={() => onSelectFolder?.(null)}
+              onDrop={async e => {
+                e.stopPropagation();
+                const type = e.dataTransfer.getData("type");
+                const id = Number(e.dataTransfer.getData("id"));
+                if (type === "note") {
+                  // Move note to root
+                  const token = localStorage.getItem("token");
+                  const payload = token ? JSON.parse(atob(token.split(".")[1])) : {};
+                  const userId = payload.sub;
+                  await fetch(
+                    `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777/api"}/notes/${id}/move`,
+                    {
+                      method: "PATCH",
+                      headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                      },
+                      body: JSON.stringify({ folderId: null, userId }),
+                    }
+                  );
+                  if (onMove) onMove();
+                }
+                if (type === "folder") {
+                  // Move folder to root
+                  const token = localStorage.getItem("token");
+                  const payload = token ? JSON.parse(atob(token.split(".")[1])) : {};
+                  const userId = payload.sub;
+                  await fetch(
+                    `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777/api"}/folders/${id}/move`,
+                    {
+                      method: "PATCH",
+                      headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                      },
+                      body: JSON.stringify({ parentId: null, userId }),
+                    }
+                  );
+                  if (onMove) onMove();
+                }
+              }}
+              onDragOver={e => e.preventDefault()}
+            >
+              <span style={{ color: "var(--folders-sidebar-text)" }}>Zona Libre</span>
+              <ul className="ml-4 list-none">
+                {notes.filter(note => getNoteFolderId(note) === null).map(note => (
+                  <li
+                    key={note.id}
+                    draggable
+                    onDragStart={e => {
+                      e.stopPropagation();
+                      e.dataTransfer.setData("type", "note");
+                      e.dataTransfer.setData("id", note.id);
+                    }}
+                    className="flex items-center gap-2 py-1 cursor-pointer hover:underline"
+                    style={{ color: "var(--folders-sidebar-text)" }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      onSelectNote && onSelectNote(note);
+                    }}
+                  >
+                    <svg
+                      width="1em"
+                      height="1em"
+                      viewBox="0 0 1024 1024"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-4 h-4"
+                      fill="currentColor"
+                      style={{ color: "var(--folders-sidebar-note-icon)" }}
+                    >
+                      <rect x="192" y="192" width="640" height="640" rx="120" ry="120" />
+                    </svg>
+                    <span style={{ color: "var(--folders-sidebar-text)" }}>{note.title}</span>
+                  </li>
+                ))}
+              </ul>
+            </li>
+            {folderTree.map(folder => (
+              <FolderNode
+                key={folder.id}
+                folder={folder}
+                notes={notes}
+                selectedFolderId={selectedFolderId}
+                onSelectFolder={onSelectFolder}
+                collapsedFolders={collapsedFolders}
+                setCollapsedFolders={setCollapsedFolders}
+                onMove={onMove}
+                onSelectNote={onSelectNote}
+              />
+            ))}
+          </ul>
+        </div>
       )}
     </aside>
   );
