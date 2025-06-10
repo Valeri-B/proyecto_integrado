@@ -26,6 +26,9 @@ export class ActivityLogs {
   @Column("timestamp without time zone", { name: "timestamp", nullable: true })
   timestamp: Date | null;
 
+  @Column("character varying", { name: "tintedBg", length: 2, nullable: true })
+  tintedBg: string | null;
+
   @ManyToOne(() => Users, (users) => users.activityLogs, {
     onDelete: "CASCADE",
   })

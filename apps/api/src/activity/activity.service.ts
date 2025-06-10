@@ -37,15 +37,39 @@ export class ActivityService {
             .getRawMany();
     }
 
+    async updateUserHeatmap(
+        userId: number,
+        oldType: string,
+        newType: string,
+        color: string,
+        tintedBg?: boolean
+    ) {
+        // Update all logs for this user and type
+        await this.activityRepo
+            .createQueryBuilder()
+            .update(ActivityLogs)
+            .set({ type: newType, color, tintedBg: tintedBg ? "1" : "0" })
+            .where('user_id = :userId', { userId })
+            .andWhere('type = :oldType', { oldType })
+            .execute();
+        return { success: true };
+    }
+
     async getUserHeatmaps(userId: number) {
-        // Get all unique types and their latest color for this user
+        // Get all unique types and their latest color and tintedBg for this user
         const rows = await this.activityRepo
             .createQueryBuilder('log')
             .select('log.type', 'type')
             .addSelect('MAX(log.color)', 'color')
+            .addSelect('MAX(log.tintedBg)', 'tintedBg')
             .where('log.user = :userId', { userId })
             .groupBy('log.type')
             .getRawMany();
-        return rows;
+
+        // Convert tintedBg to boolean
+        return rows.map(row => ({
+            ...row,
+            tintedBg: row.tintedBg === "1"
+        }));
     }
 }

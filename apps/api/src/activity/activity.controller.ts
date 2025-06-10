@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Query } from '@nestjs/common';
 import { ActivityService } from './activity.service';
 
 @Controller('activity')
@@ -25,5 +25,18 @@ export class ActivityController {
         @Query('userId') userId: number
     ) {
         return this.activityService.getUserHeatmaps(Number(userId));
+    }
+
+    @Patch('/user-heatmaps')
+    async updateUserHeatmap(
+        @Body() body: { userId: number, oldType: string, newType: string, color: string, tintedBg?: boolean }
+    ) {
+        return this.activityService.updateUserHeatmap(
+            Number(body.userId),
+            body.oldType,
+            body.newType,
+            body.color,
+            body.tintedBg
+        );
     }
 }
