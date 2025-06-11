@@ -315,19 +315,23 @@ export default function TasksBoard({
         onDrop={onDrop(null)}
         className="mb-8"
       >
-        <h2 className="text-xl font-bold mb-2">Tareas sueltas</h2>
-        <form onSubmit={addTask} className="flex gap-2 mb-4">
+        <h2 className="text-xl font-bold mb-2" style={{ color: "var(--tasks-h2-text)" }}>Tasks</h2>
+        <form onSubmit={addTask} className="flex gap-2 mb-4 justify-start">
           <input
-            className="flex-1 p-2 rounded bg-gray-800 border border-gray-700 text-white"
+            className="p-2 rounded-3xl glass-border bg-[var(--glass-bg)] text-[var(--tasks-input-text)] border border-[var(--border)] focus:outline-none focus:border-[var(--accent)] transition backdrop-blur-lg"
             value={newTask}
             onChange={e => setNewTask(e.target.value)}
-            placeholder="Nueva tarea"
+            placeholder="New Task"
           />
-          <button className="bg-[var(--accent)] px-4 py-2 rounded text-white font-semibold" type="submit">
-            Añadir
+          <button
+            className="glass-border bg-[var(--glass-bg)] backdrop-blur-lg border border-[var(--border)] px-6 py-2 rounded-full text-[var(--tasks-input-text)] font-semibold transition hover:border-[var(--accent)] hover:shadow-[0_0_0_2px_var(--accent),0_4px_32px_0_rgba(0,0,0,0.12)]"
+            type="submit"
+          >
+            Add
           </button>
         </form>
-        <ul className="space-y-2">
+        {/* Responsive grid for loose tasks */}
+        <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-start">
           {tasks.filter(t => !t.taskListId).map(task => {
             const days = daysUntil(task.dueDate);
             return (
@@ -335,61 +339,94 @@ export default function TasksBoard({
                 key={task.id}
                 draggable={editingTaskId !== task.id}
                 onDragStart={editingTaskId !== task.id ? onDragStart(task.id) : undefined}
-                className={`flex flex-col gap-1 mb-2 bg-gray-800 p-2 rounded ${shinyId === task.id ? "shine-and-scale" : ""}`}
+                className={`flex flex-col gap-1 bg-gray-800 p-2 max-w-md w-full
+                  ${shinyId === task.id ? "shine-and-scale" : ""}
+                  ${editingTaskId === task.id ? "rounded-3xl" : "rounded-3xl"}
+                  glass-border
+                  backdrop-blur-lg
+                  `}
+                style={{
+                  background: "var(--glass-bg)",
+                  boxShadow: "0 4px 32px 0 rgba(0,0,0,0.08)",
+                  border: "1px solid var(--border)",
+                  margin: "0 auto",
+                }}
               >
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={!!task.isDone}
-                    onChange={() => toggleTask(task)}
-                  />
-                  <span className={task.isDone ? "line-through text-gray-400 flex-1" : "flex-1"}>
-                    {task.content}
-                    {typeof days === "number" && (
-                      <span className="ml-2 text-xs text-gray-400 font-semibold">
-                        {days === 0
-                          ? "hoy"
-                          : days > 0
-                          ? `${days} días`
-                          : `${Math.abs(days)} días atrás`}
-                      </span>
-                    )}
-                  </span>
-                  {/* TAG BUTTON */}
+                {/* BUTTONS ROW */}
+                <div className="flex items-center gap-2 mb-1">
                   <button
-                    className="ml-2 px-2 py-1 rounded bg-yellow-500 hover:bg-yellow-600"
-                    title="Etiquetas"
+                    className="px-2 py-2 rounded-full glass-border bg-[var(--glass-bg)] backdrop-blur-lg border border-[var(--border)] transition hover:border-[var(--accent)] hover:shadow-[0_0_0_2px_var(--accent),0_4px_32px_0_rgba(0,0,0,0.12)]"
+                    title="Tags"
                     onClick={() => setShowTagModalForTask(task.id)}
                     type="button"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-                      <path fillRule="evenodd" d="M4.5 2A2.5 2.5 0 0 0 2 4.5v3.879a2.5 2.5 0 0 0 .732 1.767l7.5 7.5a2.5 2.5 0 0 0 3.536 0l3.878-3.878a2.5 2.5 0 0 0 0-3.536l-7.5-7.5A2.5 2.5 0 0 0 8.38 2H4.5ZM5 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clipRule="evenodd" />
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="var(--tasks-tag-icon)" className="size-4">
+                      <path fillRule="evenodd" d="M4.5 2A2.5 2.5 0 0 0 2 4.5v2.879a2.5 2.5 0 0 0 .732 1.767l4.5 4.5a2.5 2.5 0 0 0 3.536 0l2.878-2.878a2.5 2.5 0 0 0 0-3.536l-4.5-4.5A2.5 2.5 0 0 0 7.38 2H4.5ZM5 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clipRule="evenodd" />
                     </svg>
                   </button>
                   <button
-                    className="ml-2 text-red-400 hover:text-red-600"
+                    className="px-2 py-2 rounded-full glass-border bg-[var(--glass-bg)] backdrop-blur-lg border border-[var(--border)] text-red-400 transition hover:border-[var(--accent)] hover:shadow-[0_0_0_2px_var(--accent),0_4px_32px_0_rgba(0,0,0,0.12)] hover:text-red-600"
                     onClick={() => deleteTask(task.id)}
-                    title="Eliminar tarea"
+                    title="Delete task"
                   >
-                    🗑
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
+                      <path fillRule="evenodd" d="M5 3.25V4H2.75a.75.75 0 0 0 0 1.5h.3l.815 8.15A1.5 1.5 0 0 0 5.357 15h5.285a1.5 1.5 0 0 0 1.493-1.35l.815-8.15h.3a.75.75 0 0 0 0-1.5H11v-.75A2.25 2.25 0 0 0 8.75 1h-1.5A2.25 2.25 0 0 0 5 3.25Zm2.25-.75a.75.75 0 0 0-.75.75V4h3v-.75a.75.75 0 0 0-.75-.75h-1.5ZM6.05 6a.75.75 0 0 1 .787.713l.275 5.5a.75.75 0 0 1-1.498.075l-.275-5.5A.75.75 0 0 1 6.05 6Zm3.9 0a.75.75 0 0 1 .712.787l-.275 5.5a.75.75 0 0 1-1.498-.075l.275-5.5a.75.75 0 0 1 .786-.711Z" clipRule="evenodd" />
+                    </svg>
                   </button>
                   <button
-                    className="text-gray-400 hover:text-blue-500 transition"
-                    title="Editar tarea"
+                    className="px-2 py-2 rounded-full glass-border bg-[var(--glass-bg)] backdrop-blur-lg border border-[var(--border)] text-gray-400 transition hover:border-[var(--accent)] hover:shadow-[0_0_0_2px_var(--accent),0_4px_32px_0_rgba(0,0,0,0.12)] hover:text-blue-500"
+                    title="Edit task"
                     onClick={e => {
                       e.stopPropagation();
                       openEditDropdown(task);
                     }}
                   >
-                    ✏️
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
+                      <path d="M13.488 2.513a1.75 1.75 0 0 0-2.475 0L6.75 6.774a2.75 2.75 0 0 0-.596.892l-.848 2.047a.75.75 0 0 0 .98.98l2.047-.848a2.75 2.75 0 0 0 .892-.596l4.261-4.262a1.75 1.75 0 0 0 0-2.474Z" />
+                      <path d="M4.75 3.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h6.5c.69 0 1.25-.56 1.25-1.25V9A.75.75 0 0 1 14 9v2.25A2.75 2.75 0 0 1 11.25 14h-6.5A2.75 2.75 0 0 1 2 11.25v-6.5A2.75 2.75 0 0 1 4.75 2H7a.75.75 0 0 1 0 1.5H4.75Z" />
+                    </svg>
                   </button>
+                </div>
+
+                {/* TASK ROW */}
+                <div className="flex items-center gap-2 flex-wrap min-w-0">
+                  <input
+                    type="checkbox"
+                    checked={!!task.isDone}
+                    onChange={() => toggleTask(task)}
+                  />
+                  <span
+                    className={`flex-1 relative transition-colors duration-300 ${task.isDone ? "text-gray-400" : ""}`}
+                    style={{ display: "inline-block", minWidth: 0, wordBreak: "break-word" }}
+                  >
+                    <span
+                      className={`transition-all duration-300 ${task.isDone ? "line-through-task" : ""}`}
+                      style={{
+                        position: "relative",
+                        display: "inline-block",
+                        wordBreak: "break-word",
+                        minWidth: 0,
+                      }}
+                    >
+                      {task.content}
+                    </span>
+                    {typeof days === "number" && (
+                      <span className="ml-2 text-xs text-gray-400 font-semibold">
+                        {days === 0
+                          ? "hoy"
+                          : days > 0
+                            ? `${days} días`
+                            : `${Math.abs(days)} días atrás`}
+                      </span>
+                    )}
+                  </span>
                 </div>
                 {/* Tags display */}
                 <div className="flex gap-1 ml-6 flex-wrap">
                   {(task.tags || []).map((tag) => (
                     <span
                       key={tag.id}
-                      className="flex items-center gap-1 px-2 py-1 rounded text-xs"
+                      className="flex items-center gap-1 px-2 py-1 rounded-full text-xs"
                       style={{ background: tag.color, color: "#fff" }}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
@@ -400,24 +437,31 @@ export default function TasksBoard({
                   ))}
                 </div>
                 {/* Tag Picker Modal */}
-                {showTagModalForTask === task.id && (
-                  <TagPickerModal
-                    tags={tags}
-                    selectedTagIds={(task.tags || []).map(t => t.id)}
-                    onToggle={handleToggleTaskTag}
-                    onClose={() => setShowTagModalForTask(null)}
-                    onEdit={onEditTag}
-                    onDelete={onDeleteTag}
-                    onCreate={onCreateTag}
-                  />
-                )}
+               
                 {/* Inline edit dropdown */}
                 {editingTaskId === task.id && (
                   <div
                     ref={editDropdownRef}
-                    className="transition-all duration-300 overflow-hidden bg-gray-900 rounded-lg border border-gray-700 mt-2 max-h-[400px] opacity-100 p-4"
+                    className={`
+                      transition-all duration-300
+                      overflow-hidden
+                      rounded-3xl
+                      border glass-border
+                      bg-[var(--glass-bg)] backdrop-blur-lg
+                      mt-2
+                      ${editingTaskId === task.id ? "edit-dropdown-open" : "edit-dropdown-closed"}
+                    `}
                     style={{
-                      pointerEvents: "auto",
+                      maxHeight: editingTaskId === task.id ? 400 : 0,
+                      opacity: editingTaskId === task.id ? 1 : 0,
+                      boxShadow: editingTaskId === task.id ? "0 4px 24px 0 rgba(0,0,0,0.08)" : "none",
+                      pointerEvents: editingTaskId === task.id ? "auto" : "none",
+                      marginTop: 12,
+                      transition: "max-height 0.3s cubic-bezier(.4,2,.6,1), opacity 0.2s, box-shadow 0.2s, border-radius 0.3s cubic-bezier(.4,2,.6,1)",
+                      border: "1px solid var(--border)",
+                      background: "var(--glass-bg)",
+                      backdropFilter: "blur(8px) saturate(180%)",
+                      WebkitBackdropFilter: "blur(8px) saturate(180%)",
                     }}
                   >
                     <form
@@ -428,14 +472,14 @@ export default function TasksBoard({
                       className="flex flex-col gap-2"
                     >
                       <input
-                        className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[var(--accent)] transition"
+                        className="w-full p-2 rounded-3xl glass-border bg-[var(--glass-bg)] text-[var(--tasks-input-text)] border border-[var(--border)] focus:outline-none focus:border-[var(--accent)] transition backdrop-blur-lg"
                         value={editContent}
                         onChange={e => setEditContent(e.target.value)}
                         disabled={savingEdit}
                         autoFocus
                       />
                       <textarea
-                        className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[var(--accent)] transition"
+                        className="w-full p-2 rounded-3xl glass-border bg-[var(--glass-bg)] text-[var(--tasks-input-text)] border border-[var(--border)] focus:outline-none focus:border-[var(--accent)] transition backdrop-blur-lg"
                         value={editDescription}
                         onChange={e => setEditDescription(e.target.value)}
                         disabled={savingEdit}
@@ -443,18 +487,17 @@ export default function TasksBoard({
                       />
                       <input
                         type="datetime-local"
-                        className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[var(--accent)] transition"
+                        className="w-full p-2 rounded-3xl glass-border bg-[var(--glass-bg)] text-[var(--tasks-input-text)] border border-[var(--border)] focus:outline-none focus:border-[var(--accent)] transition backdrop-blur-lg"
                         value={editDueDate || ""}
                         onChange={e => setEditDueDate(e.target.value)}
                         disabled={savingEdit}
                       />
                       <input
                         type="datetime-local"
-                        className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[var(--accent)] transition"
+                        className="w-full p-2 rounded-3xl glass-border bg-[var(--glass-bg)] text-[var(--tasks-input-text)] border border-[var(--border)] focus:outline-none focus:border-[var(--accent)] transition backdrop-blur-lg"
                         value={editReminderDate || ""}
                         onChange={e => setEditReminderDate(e.target.value)}
                         onBlur={() => {
-                          // If the user is clicking outside, ensure the latest value is saved
                           if (clickedOutside) {
                             setTimeout(() => {
                               saveEdit();
@@ -463,21 +506,21 @@ export default function TasksBoard({
                         }}
                         disabled={savingEdit}
                       />
-                      <div className="flex gap-2 mt-2">
+                      <div className="flex gap-2 mt-2 justify-center">
                         <button
-                          className="bg-green-600 px-4 py-2 rounded text-white font-semibold"
+                          className="glass-border bg-[var(--glass-bg)] backdrop-blur-lg border border-[var(--border)] px-7 py-2 rounded-full text-[var(--tasks-input-text)] font-semibold transition hover:border-[var(--accent)] hover:shadow-[0_0_0_2px_var(--accent),0_4px_32px_0_rgba(0,0,0,0.12)]"
                           type="submit"
                           disabled={savingEdit}
                         >
-                          Guardar
+                          Save
                         </button>
                         <button
-                          className="bg-gray-700 px-4 py-2 rounded text-white font-semibold"
+                          className="glass-border bg-[var(--glass-bg)] backdrop-blur-lg border border-[var(--border)] px-7 py-2 rounded-full text-[var(--tasks-input-text)] font-semibold transition hover:border-[var(--accent)] hover:shadow-[0_0_0_2px_var(--accent),0_4px_32px_0_rgba(0,0,0,0.12)]"
                           type="button"
                           onClick={() => setEditingTaskId(null)}
                           disabled={savingEdit}
                         >
-                          Cancelar
+                          Cancel
                         </button>
                       </div>
                     </form>
@@ -490,38 +533,51 @@ export default function TasksBoard({
       </div>
       {/* Task Lists */}
       <div>
-        <h2 className="text-xl font-bold mb-2">Listas de tareas</h2>
+        <h2 className="text-xl font-bold mb-2 text-[var(--tasks-h2-text)]">Task Lists</h2>
         <form onSubmit={addList} className="flex gap-2 mb-4">
           <input
-            className="flex-1 p-2 rounded bg-gray-800 border border-gray-700 text-white"
+            className="p-2 w-48 rounded-3xl glass-border bg-[var(--glass-bg)] text-[var(--tasks-input-text)] border border-[var(--border)] focus:outline-none focus:border-[var(--accent)] transition backdrop-blur-lg"
             value={newList}
             onChange={e => setNewList(e.target.value)}
-            placeholder="Nueva lista"
+            placeholder="New list"
           />
-          <button className="bg-green-600 px-4 py-2 rounded text-white font-semibold" type="submit">
-            Crear lista
+          <button
+            className="glass-border bg-[var(--glass-bg)] backdrop-blur-lg border border-[var(--border)] px-5 py-2 rounded-full text-[var(--tasks-input-text)] font-semibold transition hover:border-[var(--accent)] hover:shadow-[0_0_0_2px_var(--accent),0_4px_32px_0_rgba(0,0,0,0.12)]"
+            type="submit"
+          >
+            Create list
           </button>
         </form>
-        <div className="flex gap-8">
+        <div className="flex gap-8 items-start">
           {lists.map(list => (
             <div
               key={list.id}
               onDragOver={e => e.preventDefault()}
               onDrop={onDrop(list.id)}
-              className="bg-gray-900 p-4 rounded-2xl shadow min-w-[250px] group relative flex flex-col"
-              style={{ minWidth: 300, marginBottom: 24 }}
+              className="glass-border bg-[var(--glass-bg)] backdrop-blur-lg p-4 rounded-4xl shadow min-w-[250px] group relative flex flex-col border border-[var(--border)]"
+              style={{
+                minWidth: 300,
+                marginBottom: 24,
+                background: "var(--glass-bg)",
+                boxShadow: "0 4px 32px 0 rgba(0,0,0,0.08)",
+                border: "1px solid var(--border)",
+                backdropFilter: "blur(8px) saturate(180%)",
+                WebkitBackdropFilter: "blur(8px) saturate(180%)",
+              }}
             >
               <div className="flex items-center mb-2">
-                <h3 className="font-bold flex-1">{list.name}</h3>
+                <h3 className="font-bold flex-1 text-xl text-[var(--tasks-text-color)]">{list.name}</h3>
                 <button
                   className="opacity-0 group-hover:opacity-100 transition-opacity ml-2 text-red-400 hover:text-red-600"
-                  title="Eliminar lista"
+                  title="Delete list"
                   onClick={() => {
                     setDeleteListId(list.id);
                     setShowDeleteModal(true);
                   }}
                 >
-                  🗑
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
+                    <path fillRule="evenodd" d="M5 3.25V4H2.75a.75.75 0 0 0 0 1.5h.3l.815 8.15A1.5 1.5 0 0 0 5.357 15h5.285a1.5 1.5 0 0 0 1.493-1.35l.815-8.15h.3a.75.75 0 0 0 0-1.5H11v-.75A2.25 2.25 0 0 0 8.75 1h-1.5A2.25 2.25 0 0 0 5 3.25Zm2.25-.75a.75.75 0 0 0-.75.75V4h3v-.75a.75.75 0 0 0-.75-.75h-1.5ZM6.05 6a.75.75 0 0 1 .787.713l.275 5.5a.75.75 0 0 1-1.498.075l-.275-5.5A.75.75 0 0 1 6.05 6Zm3.9 0a.75.75 0 0 1 .712.787l-.275 5.5a.75.75 0 0 1-1.498-.075l.275-5.5a.75.75 0 0 1 .786-.711Z" clipRule="evenodd" />
+                  </svg>
                 </button>
               </div>
               <form
@@ -529,7 +585,7 @@ export default function TasksBoard({
                 className="flex gap-2 mt-2"
               >
                 <input
-                  className="flex-1 p-2 rounded bg-gray-800 border border-gray-700 text-white"
+                  className="flex-1 p-2 rounded-3xl glass-border bg-[var(--glass-bg)] text-[var(--tasks-input-text)] border border-[var(--border)] focus:outline-none focus:border-[var(--accent)] transition backdrop-blur-lg"
                   value={listTaskInputs[list.id] || ""}
                   onChange={e =>
                     setListTaskInputs(inputs => ({
@@ -537,10 +593,13 @@ export default function TasksBoard({
                       [list.id]: e.target.value,
                     }))
                   }
-                  placeholder="Nueva tarea en lista"
+                  placeholder="New task in list"
                 />
-                <button className="bg-[var(--accent)] px-4 py-2 rounded text-white font-semibold" type="submit">
-                  Añadir
+                <button
+                  className="glass-border bg-[var(--glass-bg)] backdrop-blur-lg border border-[var(--border)] px-6 py-2 rounded-full text-[var(--tasks-input-text)] font-semibold transition hover:border-[var(--accent)] hover:shadow-[0_0_0_2px_var(--accent),0_4px_32px_0_rgba(0,0,0,0.12)]"
+                  type="submit"
+                >
+                  Add
                 </button>
               </form>
               <ul className="space-y-2 mt-4">
@@ -551,61 +610,93 @@ export default function TasksBoard({
                       key={task.id}
                       draggable={editingTaskId !== task.id}
                       onDragStart={editingTaskId !== task.id ? onDragStart(task.id) : undefined}
-                      className={`flex flex-col gap-1 mb-2 bg-gray-800 p-2 rounded ${shinyId === task.id ? "shine-and-scale" : ""}`}
+                      className={`flex flex-col gap-1 bg-gray-800 p-2 max-w-md w-full
+                        ${shinyId === task.id ? "shine-and-scale" : ""}
+                        ${editingTaskId === task.id ? "rounded-3xl" : "rounded-3xl"}
+                        glass-border
+                        backdrop-blur-lg
+                        `}
+                      style={{
+                        background: "var(--glass-bg)",
+                        boxShadow: "0 4px 32px 0 rgba(0,0,0,0.08)",
+                        border: "1px solid var(--border)",
+                        margin: "0 auto",
+                      }}
                     >
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={!!task.isDone}
-                          onChange={() => toggleTask(task)}
-                        />
-                        <span className={task.isDone ? "line-through text-gray-400 flex-1" : "flex-1"}>
-                          {task.content}
-                          {typeof days === "number" && (
-                            <span className="ml-2 text-xs text-gray-400 font-semibold">
-                              {days === 0
-                                ? "hoy"
-                                : days > 0
-                                ? `${days} días`
-                                : `${Math.abs(days)} días atrás`}
-                            </span>
-                          )}
-                        </span>
-                        {/* TAG BUTTON */}
+                      {/* BUTTONS ROW - above */}
+                      <div className="flex items-center gap-2 mb-1">
                         <button
-                          className="ml-2 px-2 py-1 rounded bg-yellow-500 hover:bg-yellow-600"
-                          title="Etiquetas"
+                          className="px-2 py-2 rounded-full glass-border bg-[var(--glass-bg)] backdrop-blur-lg border border-[var(--border)] transition hover:border-[var(--accent)] hover:shadow-[0_0_0_2px_var(--accent),0_4px_32px_0_rgba(0,0,0,0.12)]"
+                          title="Tags"
                           onClick={() => setShowTagModalForTask(task.id)}
                           type="button"
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-                            <path fillRule="evenodd" d="M4.5 2A2.5 2.5 0 0 0 2 4.5v3.879a2.5 2.5 0 0 0 .732 1.767l7.5 7.5a2.5 2.5 0 0 0 3.536 0l3.878-3.878a2.5 2.5 0 0 0 0-3.536l-7.5-7.5A2.5 2.5 0 0 0 8.38 2H4.5ZM5 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clipRule="evenodd" />
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="var(--tasks-tag-icon)" className="size-4">
+                            <path fillRule="evenodd" d="M4.5 2A2.5 2.5 0 0 0 2 4.5v2.879a2.5 2.5 0 0 0 .732 1.767l4.5 4.5a2.5 2.5 0 0 0 3.536 0l2.878-2.878a2.5 2.5 0 0 0 0-3.536l-4.5-4.5A2.5 2.5 0 0 0 7.38 2H4.5ZM5 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clipRule="evenodd" />
                           </svg>
                         </button>
                         <button
-                          className="ml-2 text-red-400 hover:text-red-600"
+                          className="px-2 py-2 rounded-full glass-border bg-[var(--glass-bg)] backdrop-blur-lg border border-[var(--border)] text-red-400 transition hover:border-[var(--accent)] hover:shadow-[0_0_0_2px_var(--accent),0_4px_32px_0_rgba(0,0,0,0.12)] hover:text-red-600"
                           onClick={() => deleteTask(task.id)}
-                          title="Eliminar tarea"
+                          title="Delete task"
                         >
-                          🗑
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
+                            <path fillRule="evenodd" d="M5 3.25V4H2.75a.75.75 0 0 0 0 1.5h.3l.815 8.15A1.5 1.5 0 0 0 5.357 15h5.285a1.5 1.5 0 0 0 1.493-1.35l.815-8.15h.3a.75.75 0 0 0 0-1.5H11v-.75A2.25 2.25 0 0 0 8.75 1h-1.5A2.25 2.25 0 0 0 5 3.25Zm2.25-.75a.75.75 0 0 0-.75.75V4h3v-.75a.75.75 0 0 0-.75-.75h-1.5ZM6.05 6a.75.75 0 0 1 .787.713l.275 5.5a.75.75 0 0 1-1.498.075l-.275-5.5A.75.75 0 0 1 6.05 6Zm3.9 0a.75.75 0 0 1 .712.787l-.275 5.5a.75.75 0 0 1-1.498-.075l.275-5.5a.75.75 0 0 1 .786-.711Z" clipRule="evenodd" />
+                          </svg>
                         </button>
                         <button
-                          className="text-gray-400 hover:text-blue-500 transition"
-                          title="Editar tarea"
+                          className="px-2 py-2 rounded-full glass-border bg-[var(--glass-bg)] backdrop-blur-lg border border-[var(--border)] text-gray-400 transition hover:border-[var(--accent)] hover:shadow-[0_0_0_2px_var(--accent),0_4px_32px_0_rgba(0,0,0,0.12)] hover:text-blue-500"
+                          title="Edit task"
                           onClick={e => {
                             e.stopPropagation();
                             openEditDropdown(task);
                           }}
                         >
-                          ✏️
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
+                            <path d="M13.488 2.513a1.75 1.75 0 0 0-2.475 0L6.75 6.774a2.75 2.75 0 0 0-.596.892l-.848 2.047a.75.75 0 0 0 .98.98l2.047-.848a2.75 2.75 0 0 0 .892-.596l4.261-4.262a1.75 1.75 0 0 0 0-2.474Z" />
+                            <path d="M4.75 3.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h6.5c.69 0 1.25-.56 1.25-1.25V9A.75.75 0 0 1 14 9v2.25A2.75 2.75 0 0 1 11.25 14h-6.5A2.75 2.75 0 0 1 2 11.25v-6.5A2.75 2.75 0 0 1 4.75 2H7a.75.75 0 0 1 0 1.5H4.75Z" />
+                          </svg>
                         </button>
+                      </div>
+                      {/* TASK ROW */}
+                      <div className="flex items-center gap-2 flex-wrap min-w-0">
+                        <input
+                          type="checkbox"
+                          checked={!!task.isDone}
+                          onChange={() => toggleTask(task)}
+                        />
+                        <span
+                          className={`flex-1 relative transition-colors duration-300 ${task.isDone ? "text-gray-400" : ""
+                            }`}
+                          style={{ display: "inline-block" }}
+                        >
+                          <span
+                            className={`transition-all duration-300 ${task.isDone ? "line-through-task" : ""
+                              }`}
+                            style={{
+                              position: "relative",
+                              display: "inline-block",
+                            }}
+                          >
+                            {task.content}
+                          </span>
+                          {typeof days === "number" && (
+                            <span className="ml-2 text-xs text-gray-400 font-semibold">
+                              {days === 0
+                                ? "hoy"
+                                : days > 0
+                                  ? `${days} días`
+                                  : `${Math.abs(days)} días atrás`}
+                            </span>
+                          )}
+                        </span>
                       </div>
                       {/* Tags display */}
                       <div className="flex gap-1 ml-6 flex-wrap">
                         {(task.tags || []).map((tag) => (
                           <span
                             key={tag.id}
-                            className="flex items-center gap-1 px-2 py-1 rounded text-xs"
+                            className="flex items-center gap-1 px-2 py-1 rounded-full text-xs"
                             style={{ background: tag.color, color: "#fff" }}
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
@@ -616,24 +707,31 @@ export default function TasksBoard({
                         ))}
                       </div>
                       {/* Tag Picker Modal */}
-                      {showTagModalForTask === task.id && (
-                        <TagPickerModal
-                          tags={tags}
-                          selectedTagIds={(task.tags || []).map(t => t.id)}
-                          onToggle={handleToggleTaskTag}
-                          onClose={() => setShowTagModalForTask(null)}
-                          onEdit={onEditTag}
-                          onDelete={onDeleteTag}
-                          onCreate={onCreateTag}
-                        />
-                      )}
+                     
                       {/* Inline edit dropdown */}
                       {editingTaskId === task.id && (
                         <div
                           ref={editDropdownRef}
-                          className="transition-all duration-300 overflow-hidden bg-gray-900 rounded-lg border border-gray-700 mt-2 max-h-[400px] opacity-100 p-4"
+                          className={`
+                            transition-all duration-300
+                            overflow-hidden
+                            rounded-3xl
+                            border glass-border
+                            bg-[var(--glass-bg)] backdrop-blur-lg
+                            mt-2
+                            ${editingTaskId === task.id ? "edit-dropdown-open" : "edit-dropdown-closed"}
+                          `}
                           style={{
-                            pointerEvents: "auto",
+                            maxHeight: editingTaskId === task.id ? 400 : 0,
+                            opacity: editingTaskId === task.id ? 1 : 0,
+                            boxShadow: editingTaskId === task.id ? "0 4px 24px 0 rgba(0,0,0,0.08)" : "none",
+                            pointerEvents: editingTaskId === task.id ? "auto" : "none",
+                            marginTop: 12,
+                            transition: "max-height 0.3s cubic-bezier(.4,2,.6,1), opacity 0.2s, box-shadow 0.2s, border-radius 0.3s cubic-bezier(.4,2,.6,1)",
+                            border: "1px solid var(--border)",
+                            background: "var(--glass-bg)",
+                            backdropFilter: "blur(8px) saturate(180%)",
+                            WebkitBackdropFilter: "blur(8px) saturate(180%)",
                           }}
                         >
                           <form
@@ -644,14 +742,14 @@ export default function TasksBoard({
                             className="flex flex-col gap-2"
                           >
                             <input
-                              className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[var(--accent)] transition"
+                              className="w-full p-2 rounded-3xl glass-border bg-[var(--glass-bg)] text-[var(--tasks-input-text)] border border-[var(--border)] focus:outline-none focus:border-[var(--accent)] transition backdrop-blur-lg"
                               value={editContent}
                               onChange={e => setEditContent(e.target.value)}
                               disabled={savingEdit}
                               autoFocus
                             />
                             <textarea
-                              className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[var(--accent)] transition"
+                              className="w-full p-2 rounded-3xl glass-border bg-[var(--glass-bg)] text-[var(--tasks-input-text)] border border-[var(--border)] focus:outline-none focus:border-[var(--accent)] transition backdrop-blur-lg"
                               value={editDescription}
                               onChange={e => setEditDescription(e.target.value)}
                               disabled={savingEdit}
@@ -659,18 +757,17 @@ export default function TasksBoard({
                             />
                             <input
                               type="datetime-local"
-                              className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[var(--accent)] transition"
+                              className="w-full p-2 rounded-3xl glass-border bg-[var(--glass-bg)] text-[var(--tasks-input-text)] border border-[var(--border)] focus:outline-none focus:border-[var(--accent)] transition backdrop-blur-lg"
                               value={editDueDate || ""}
                               onChange={e => setEditDueDate(e.target.value)}
                               disabled={savingEdit}
                             />
                             <input
                               type="datetime-local"
-                              className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[var(--accent)] transition"
+                              className="w-full p-2 rounded-3xl glass-border bg-[var(--glass-bg)] text-[var(--tasks-input-text)] border border-[var(--border)] focus:outline-none focus:border-[var(--accent)] transition backdrop-blur-lg"
                               value={editReminderDate || ""}
                               onChange={e => setEditReminderDate(e.target.value)}
                               onBlur={() => {
-                                // If the user is clicking outside, ensure the latest value is saved
                                 if (clickedOutside) {
                                   setTimeout(() => {
                                     saveEdit();
@@ -679,21 +776,21 @@ export default function TasksBoard({
                               }}
                               disabled={savingEdit}
                             />
-                            <div className="flex gap-2 mt-2">
+                            <div className="flex gap-2 mt-2 justify-center">
                               <button
-                                className="bg-green-600 px-4 py-2 rounded text-white font-semibold"
+                                className="glass-border bg-[var(--glass-bg)] backdrop-blur-lg border border-[var(--border)] px-7 py-2 rounded-full text-[var(--tasks-input-text)] font-semibold transition hover:border-[var(--accent)] hover:shadow-[0_0_0_2px_var(--accent),0_4px_32px_0_rgba(0,0,0,0.12)]"
                                 type="submit"
                                 disabled={savingEdit}
                               >
-                                Guardar
+                                Save
                               </button>
                               <button
-                                className="bg-gray-700 px-4 py-2 rounded text-white font-semibold"
+                                className="glass-border bg-[var(--glass-bg)] backdrop-blur-lg border border-[var(--border)] px-7 py-2 rounded-full text-[var(--tasks-input-text)] font-semibold transition hover:border-[var(--accent)] hover:shadow-[0_0_0_2px_var(--accent),0_4px_32px_0_rgba(0,0,0,0.12)]"
                                 type="button"
                                 onClick={() => setEditingTaskId(null)}
                                 disabled={savingEdit}
                               >
-                                Cancelar
+                                Cancel
                               </button>
                             </div>
                           </form>
@@ -709,8 +806,17 @@ export default function TasksBoard({
       </div>
       {/* Delete List Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
-          <div className="bg-[var(--panel)] rounded-xl p-6 relative">
+        <div className="fixed rounded-3xl inset-0 flex items-center justify-center z-50">
+          <div
+            className="rounded-3xl p-6 relative glass-border border border-[var(--border)] shadow-2xl"
+            style={{
+              background: "var(--glass-bg)",
+              backdropFilter: "blur(16px) saturate(200%)",
+              WebkitBackdropFilter: "blur(16px) saturate(200%)",
+              border: "1px solid var(--border)",
+              boxShadow: "0 4px 32px 0 rgba(0,0,0,0.08)",
+            }}
+          >
             <button
               className="absolute top-3 right-3 text-gray-400 hover:text-red-600 text-2xl"
               onClick={() => setShowDeleteModal(false)}
@@ -718,24 +824,37 @@ export default function TasksBoard({
             >
               ×
             </button>
-            <div className="text-lg font-bold mb-4">¿Eliminar lista?</div>
-            <p className="mb-4">Las tareas se moverán a "Tareas sueltas".</p>
+            <div className="text-lg font-bold mb-4">Delete list?</div>
+            <p className="mb-4">Tasks will be moved to task space</p>
             <div className="flex gap-2">
               <button
-                className="bg-red-600 text-white px-4 py-2 rounded"
+                className="bg-red-600 text-white px-4 py-2 rounded-full"
                 onClick={handleDeleteList}
               >
-                Eliminar
+                Delete
               </button>
               <button
-                className="bg-gray-400 text-white px-4 py-2 rounded"
+                className="bg-gray-400 text-white px-4 py-2 rounded-full"
                 onClick={() => setShowDeleteModal(false)}
               >
-                Cancelar
+                Cancel
               </button>
             </div>
           </div>
         </div>
+      )}
+      {showTagModalForTask !== null && (
+        <TagPickerModal
+          tags={tags}
+          selectedTagIds={
+            (tasks.find(t => t.id === showTagModalForTask)?.tags || []).map(t => t.id)
+          }
+          onToggle={handleToggleTaskTag}
+          onClose={() => setShowTagModalForTask(null)}
+          onEdit={onEditTag}
+          onDelete={onDeleteTag}
+          onCreate={onCreateTag}
+        />
       )}
     </div>
   );
