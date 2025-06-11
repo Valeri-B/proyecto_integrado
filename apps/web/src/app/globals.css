@@ -45,6 +45,14 @@
   --note-icon-smallSidebar: #1D1616;
   --tasks-icon-smallSidebar: #1D1616;
   --admin-icon-smallSidebar: #1D1616;
+  --heatmap-text: #1D1616;
+  --tinted-heatmap-text: #EEEEEE;
+  --tasks-h2-text: #1D1616;
+  --tasks-input-text: #1D1616;
+  --tasks-buttons-text: #1D1616;
+  --tasks-tag-icon: #FFE28E;
+  --tasks-text-color: #1D1616;
+  --tasks-tag-text-color: #1D1616;
 }
 
 /* Dark mode via prefers-color-scheme */
@@ -92,6 +100,14 @@
     --note-icon-smallSidebar: #EEEEEE;
     --tasks-icon-smallSidebar: #EEEEEE;
     --admin-icon-smallSidebar: #EEEEEE;
+    --heatmap-text: #EEEEEE;
+    --tinted-heatmap-text: #EEEEEE;
+    --tasks-h2-text: #EEEEEE;
+    --tasks-input-text: #EEEEEE;
+    --tasks-buttons-text: #EEEEEE;
+    --tasks-tag-icon: #FFE28E;
+    --tasks-text-color: #EEEEEE;
+    --tasks-tag-text-color: #EEEEEE;
   }
 }
 
@@ -139,6 +155,14 @@
   --note-icon-smallSidebar: #EEEEEE;
   --tasks-icon-smallSidebar: #EEEEEE;
   --admin-icon-smallSidebar: #EEEEEE;
+  --heatmap-text: #EEEEEE;
+  --tinted-heatmap-text: #EEEEEE;
+  --tasks-h2-text: #EEEEEE;
+  --tasks-input-text: #EEEEEE;
+  --tasks-buttons-text: #EEEEEE;
+  --tasks-tag-icon: #FFE28E;
+  --tasks-text-color: #EEEEEE;
+  --tasks-tag-text-color: #EEEEEE;
 }
 
 /* Manual override: light */
@@ -186,6 +210,14 @@
   --note-icon-smallSidebar: #1D1616;
   --tasks-icon-smallSidebar: #1D1616;
   --admin-icon-smallSidebar: #1D1616;
+  --heatmap-text: #1D1616;
+  --tinted-heatmap-text: #EEEEEE;
+  --tasks-h2-text: #1D1616;
+  --tasks-input-text: #1D1616;
+  --tasks-buttons-text: #1D1616;
+  --tasks-tag-icon: #FFE28E;
+  --tasks-tag-text-color: #1D1616;
+  --tasks-text-color: #1D1616;
 }
 
 body {
@@ -406,75 +438,40 @@ body {
   0% {
     box-shadow: 0 0 0 0 #fff7, 0 0 0 0 var(--accent);
     transform: scale(1);
-    background: none;
+    background: var(--glass-bg);
+    backdrop-filter: blur(8px) saturate(180%);
+    -webkit-backdrop-filter: blur(8px) saturate(180%);
   }
-
   20% {
     box-shadow: 0 0 16px 4px #fff7, 0 0 0 0 var(--accent);
-    transform: scale(1.05);
-    background: linear-gradient(90deg, #fff7 0%, var(--accent) 100%);
+    transform: scale(1.08);
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px) saturate(220%);
+    -webkit-backdrop-filter: blur(12px) saturate(220%);
   }
-
   80% {
     box-shadow: 0 0 0 0 #fff7, 0 0 16px 4px var(--accent);
-    transform: scale(1.05);
-    background: linear-gradient(90deg, var(--accent) 0%, #fff7 100%);
+    transform: scale(1.04);
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px) saturate(200%);
+    -webkit-backdrop-filter: blur(10px) saturate(200%);
   }
-
   100% {
     box-shadow: 0 0 0 0 #fff7, 0 0 0 0 var(--accent);
     transform: scale(1);
-    background: none;
+    background: var(--glass-bg);
+    backdrop-filter: blur(8px) saturate(180%);
+    -webkit-backdrop-filter: blur(8px) saturate(180%);
   }
 }
 
 .shine-and-scale {
   animation: shine-and-scale 0.9s cubic-bezier(.4, 2, .6, 1) both;
   z-index: 10;
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px) saturate(180%);
+  -webkit-backdrop-filter: blur(8px) saturate(180%);
 }
-
-.svg-bg-icon {
-  transition: transform 0.2s cubic-bezier(.4, 2, .6, 1);
-  will-change: transform;
-  cursor: grab;
-}
-
-.shiny-link {
-  position: relative;
-  display: inline-block;
-  color: var(--accent);
-  font-weight: bold;
-  background: linear-gradient(120deg,
-      var(--accent) 0%,
-      #fff 40%,
-      var(--accent) 60%,
-      var(--accent-hover) 100%);
-  background-size: 200% auto;
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  animation: shiny-move 2.5s linear infinite;
-  transition: filter 0.2s;
-  filter: drop-shadow(0 1px 4px rgba(255, 255, 255, 0.25));
-}
-
-.shiny-link:hover,
-.shiny-link:focus {
-  filter: drop-shadow(0 2px 8px #fff) brightness(1.2);
-  animation-duration: 1.2s;
-}
-
-@keyframes shiny-move {
-  0% {
-    background-position: 200% 0;
-  }
-
-  100% {
-    background-position: -200% 0;
-  }
-}
-
 .password-reqs {
   transition: max-height 0.3s cubic-bezier(.4, 2, .6, 1), opacity 0.2s;
   will-change: max-height, opacity;
@@ -907,3 +904,34 @@ body {
 
 
 
+
+.line-through-task {
+  position: relative;
+}
+
+.line-through-task::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  background: currentColor;
+  opacity: 0.7;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition:
+    transform 0.25s cubic-bezier(.4, 2, .6, 1),
+    transform-origin 0s;
+  pointer-events: none;
+}
+
+.line-through-animate::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.line-through-reverse::after {
+  transform: scaleX(0);
+  transform-origin: right;
+}
