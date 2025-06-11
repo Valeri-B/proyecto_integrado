@@ -72,4 +72,15 @@ export class ActivityService {
             tintedBg: row.tintedBg === "1"
         }));
     }
+
+    async deleteUserHeatmap(userId: number, type: string) {
+        await this.activityRepo
+            .createQueryBuilder()
+            .delete()
+            .from(ActivityLogs)
+            .where('user_id = :userId', { userId })
+            .andWhere('type = :type', { type })
+            .execute();
+        return { success: true };
+    }
 }

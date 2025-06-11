@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Query } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Query } from '@nestjs/common';
 import { ActivityService } from './activity.service';
 
 @Controller('activity')
@@ -38,5 +38,12 @@ export class ActivityController {
             body.color,
             body.tintedBg
         );
+    }
+
+    @Delete('/user-heatmaps')
+    async deleteUserHeatmap(
+        @Body() body: { userId: number, type: string }
+    ) {
+        return this.activityService.deleteUserHeatmap(Number(body.userId), body.type);
     }
 }
