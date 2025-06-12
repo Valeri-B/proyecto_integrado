@@ -238,7 +238,7 @@ export default function ProductivityPanel({
         </div>
       )}
       {!productivityCollapsed && notifications.length === 0 && (
-        <div className="text-gray-400 mb-4">Sin notificaciones</div>
+        <div className="text-gray-400 mb-4">No notifications</div>
       )}
 
       {/* Flexible space */}
