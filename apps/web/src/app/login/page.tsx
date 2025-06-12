@@ -15,6 +15,13 @@ export default function LoginPage() {
     const [emailFocused, setEmailFocused] = useState(false);
     const [passwordFocused, setPasswordFocused] = useState(false);
 
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            router.replace("/");
+        }
+    }, [router]);
+
     // Handle GitHub OAuth redirect
     useEffect(() => {
         const token = searchParams.get("token");
@@ -116,7 +123,7 @@ export default function LoginPage() {
                         tabIndex={0}
                         role="button"
                         aria-label="Login with GitHub"
-                        onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777"}/api/auth/github`}
+                        onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777"}/auth/github`}
                         style={{ minHeight: 40, minWidth: 40 }}
                     >
                         {/* GitHub SVG */}
