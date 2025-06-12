@@ -84,6 +84,8 @@ export default function MarkdownPreview({
         color: "var(--foreground)",
         borderColor: "transparent",
         minHeight: "400px",
+        maxHeight: "600px",
+        overflowY: "auto",
       }}
       dangerouslySetInnerHTML={{ __html: renderedHTML }}
     />
