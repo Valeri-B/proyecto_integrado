@@ -1,8 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import TagPickerModal from "@/components/TagPickerModal";
+import MarkdownPreview from "@/components/MarkdownPreview";
 
 type Tag = { id: number; name: string; color: string };
 type Note = {
@@ -190,7 +189,7 @@ export default function MarkdownEditor({
       {noteTags.map((tag) => (
         <span
           key={tag.id}
-          className="flex items-center gap-1 px-2 py-1 rounded"
+          className="flex items-center gap-1 px-2 py-1 rounded-full"
           style={{ background: tag.color, color: "#fff" }}
         >
           <svg
@@ -215,43 +214,101 @@ export default function MarkdownEditor({
     <div className="flex flex-col gap-4 h-full min-h-0 relative">
       <div className="flex gap-2 mb-2">
         <button
-          className={`px-4 py-2 rounded font-medium transition-colors ${
-            !preview
-              ? "bg-[var(--accent)] text-white"
-              : "bg-gray-600 text-gray-300 hover:bg-gray-500"
-          }`}
+          className={`flex items-center gap-2 px-4 py-2 font-medium transition-colors glass-border
+      backdrop-blur-lg backdrop-saturate-200 border border-[var(--border)]
+      ${!preview
+              ? "bg-[var(--accent)] text-[var(--note-button-text)] rounded-full shadow-lg"
+              : "bg-[var(--glass-bg)] text-[var(--note-button-text)] rounded-2xl hover:bg-[var(--accent)] hover:text-[var(--accent)]"
+            }`}
+          style={{
+            background: !preview ? "var(--accent)" : "var(--glass-bg)",
+            border: "1px solid var(--border)",
+            boxShadow: !preview ? "0 4px 24px 0 rgba(0,0,0,0.10)" : "0 2px 8px 0 rgba(0,0,0,0.04)",
+            backdropFilter: "blur(8px) saturate(180%)",
+            WebkitBackdropFilter: "blur(8px) saturate(180%)",
+          }}
           onClick={() => setPreview(false)}
         >
-          Editar
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
+            <path d="M13.488 2.513a1.75 1.75 0 0 0-2.475 0L6.75 6.774a2.75 2.75 0 0 0-.596.892l-.848 2.047a.75.75 0 0 0 .98.98l2.047-.848a2.75 2.75 0 0 0 .892-.596l4.261-4.262a1.75 1.75 0 0 0 0-2.474Z" />
+            <path d="M4.75 3.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h6.5c.69 0 1.25-.56 1.25-1.25V9A.75.75 0 0 1 14 9v2.25A2.75 2.75 0 0 1 11.25 14h-6.5A2.75 2.75 0 0 1 2 11.25v-6.5A2.75 2.75 0 0 1 4.75 2H7a.75.75 0 0 1 0 1.5H4.75Z" />
+          </svg>
+          Edit
         </button>
         <button
-          className={`px-4 py-2 rounded font-medium transition-colors ${
-            preview
-              ? "bg-[var(--accent)] text-white"
-              : "bg-gray-600 text-gray-300 hover:bg-gray-500"
-          }`}
+          className={`flex items-center gap-2 px-4 py-2 font-medium transition-colors glass-border
+      backdrop-blur-lg backdrop-saturate-200 border border-[var(--border)]
+      ${preview
+              ? "bg-[var(--accent)] text-[var(--note-button-text)] rounded-full"
+              : "bg-[var(--glass-bg)] text-[var(--note-button-text)] rounded-2xl hover:bg-[var(--accent)] hover:text-[var(--accent)]"
+            }`}
+          style={{
+            background: preview ? "var(--accent)" : "var(--glass-bg)",
+            border: "1px solid var(--border)",
+            boxShadow: preview ? "0 4px 24px 0 rgba(0,0,0,0.10)" : "0 2px 8px 0 rgba(0,0,0,0.04)",
+            backdropFilter: "blur(8px) saturate(180%)",
+            WebkitBackdropFilter: "blur(8px) saturate(180%)",
+          }}
           onClick={() => setPreview(true)}
         >
-          Vista previa
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
+            <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
+            <path fillRule="evenodd" d="M1.38 8.28a.87.87 0 0 1 0-.566 7.003 7.003 0 0 1 13.238.006.87.87 0 0 1 0 .566A7.003 7.003 0 0 1 1.379 8.28ZM11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" clipRule="evenodd" />
+          </svg>
+          Preview
         </button>
         {onSave && (
           <button
-            className="ml-auto px-4 py-2 bg-green-600 text-white rounded font-medium hover:bg-green-700 transition-colors"
+            className={`
+      ml-auto flex items-center gap-2 px-4 py-2 font-medium transition-colors glass-border
+      backdrop-blur-lg backdrop-saturate-200 border border-[var(--border)]
+      bg-green-600 text-[var(--note-button-text)] rounded-2xl
+      hover:bg-green-700
+      shadow-lg
+      hover:border-green-500
+      hover:shadow-[0_0_0_2px_#22c55e,0_4px_24px_0_rgba(0,0,0,0.10)]
+      focus-visible:border-green-500
+      focus-visible:shadow-[0_0_0_2px_#22c55e,0_4px_24px_0_rgba(0,0,0,0.10)]
+    `}
+            style={{
+              background: "var(--glass-bg)",
+              border: "1px solid var(--border)",
+              backdropFilter: "blur(8px) saturate(180%)",
+              WebkitBackdropFilter: "blur(8px) saturate(180%)",
+              transition: "all 0.18s cubic-bezier(.4,2,.6,1)",
+            }}
             onClick={onSave}
+            type="button"
           >
-            Guardar
+            Save
           </button>
         )}
         <button
-          className="ml-2 px-2 py-1 rounded bg-yellow-500 hover:bg-yellow-600"
+          className={`
+    ml-2 px-2 py-2 rounded-full glass-border
+    bg-[var(--glass-bg)] border border-[var(--border)]
+    backdrop-blur-lg backdrop-saturate-200
+    hover:bg-yellow-500 transition
+    hover:border-yellow-400
+    hover:shadow-[0_0_0_2px_#facc15,0_2px_8px_0_rgba(0,0,0,0.04)]
+    focus-visible:border-yellow-400
+    focus-visible:shadow-[0_0_0_2px_#facc15,0_2px_8px_0_rgba(0,0,0,0.04)]
+  `}
           title="Etiquetas"
           onClick={() => setShowTagModal(true)}
           type="button"
+          style={{
+            background: "var(--glass-bg)",
+            border: "1px solid var(--border)",
+            backdropFilter: "blur(8px) saturate(180%)",
+            WebkitBackdropFilter: "blur(8px) saturate(180%)",
+            transition: "all 0.18s cubic-bezier(.4,2,.6,1)",
+          }}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
-            fill="currentColor"
+            fill="var(--note-tag-button)"
             className="w-5 h-5"
           >
             <path
@@ -270,18 +327,19 @@ export default function MarkdownEditor({
           <div className="relative w-full h-full">
             <textarea
               ref={textareaRef}
-              className="w-full h-full p-4 resize-none outline-none border rounded-lg font-mono text-base leading-relaxed"
+              className="w-full h-full p-5 resize-none outline-none border rounded-lg font-mono text-base leading-relaxed"
               style={{
-                backgroundColor: "var(--panel)",
+                backgroundColor: "transparent",
                 color: "var(--foreground)",
-                borderColor: "var(--border)",
+                  borderColor: "transparent",
                 fontSize: "16px",
                 lineHeight: "1.6",
                 minHeight: "400px",
+                opacity: 1,
               }}
               value={value}
               onChange={(e) => onChange(e.target.value)}
-              placeholder="Empieza a escribir tu nota... (Ctrl+Space para vincular notas)"
+              placeholder="Start typing... (Ctrl+Space for note linking)"
               spellCheck={false}
               autoFocus
               onKeyDown={handleKeyDown}
@@ -299,9 +357,8 @@ export default function MarkdownEditor({
                 {autocompleteOptions.map((note, i) => (
                   <div
                     key={note.id}
-                    className={`p-2 cursor-pointer ${
-                      i === autocompleteIndex ? "bg-[var(--accent)] text-white" : ""
-                    }`}
+                    className={`p-2 cursor-pointer ${i === autocompleteIndex ? "bg-[var(--accent)] text-white" : ""
+                      }`}
                     onMouseDown={() => {
                       insertNoteLink(note);
                       setShowAutocomplete(false);
@@ -314,22 +371,11 @@ export default function MarkdownEditor({
             )}
           </div>
         ) : (
-          <div
-            className="w-full h-full p-4 overflow-auto prose max-w-none border rounded-lg"
-            style={{
-              backgroundColor: "var(--panel)",
-              color: "var(--foreground)",
-              borderColor: "var(--border)",
-              minHeight: "400px",
-            }}
-          >
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              components={{ a: LinkRenderer }}
-            >
-              {value}
-            </ReactMarkdown>
-          </div>
+          <MarkdownPreview 
+            value={value} 
+            notes={notes}
+            onOpenNote={onOpenNote}
+          />
         )}
       </div>
 
