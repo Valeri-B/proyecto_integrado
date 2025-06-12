@@ -102,6 +102,10 @@ export default function Home() {
     setShowTagResults({ tag });
   };
 
+  // Left and right sidebar states
+  const [showLeftSidebar, setShowLeftSidebar] = useState(false);
+  const [showRightSidebar, setShowRightSidebar] = useState(false);
+
   // Track unsaved changes
   const hasUnsavedChanges =
     selectedNote && noteDraft !== (selectedNote.content ?? "");
@@ -521,7 +525,7 @@ export default function Home() {
 
   // --- Wait for userId before rendering MainContent/TasksBoard ---
   if (!userId) {
-    return <div className="text-white p-8">Cargando usuario...</div>;
+    return <div className="text-white p-8">Loading...</div>;
   }
 
   if (!Array.isArray(folders)) return null;
