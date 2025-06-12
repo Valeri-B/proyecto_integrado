@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useRef } from "react";
+import { createPortal } from "react-dom";
 
 type Note = {
   id: number;
@@ -63,7 +64,28 @@ function FolderNode({
   onSelectNote,
 }: any) {
   const isCollapsed = collapsedFolders.has(folder.id);
-  const hasChildren = folder.children && folder.children.length > 0;
+  const hasChildren = (folder.children && folder.children.length > 0)
+  || notes.some(note => getNoteFolderId(note) === folder.id);
+
+  // --- Context menu state ---
+  const [contextMenu, setContextMenu] = React.useState<{ x: number; y: number; note: any } | null>(null);
+  const contextMenuRef = React.useRef<HTMLDivElement>(null);
+
+  // Close menu on click outside
+  React.useEffect(() => {
+    if (!contextMenu) return;
+    function handleClick(e: MouseEvent) {
+      if (
+        contextMenuRef.current &&
+        !contextMenuRef.current.contains(e.target as Node)
+      ) {
+        setContextMenu(null);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [contextMenu]);
+  // --- End context menu state ---
 
   // Drag and drop handlers for folders
   return (
@@ -140,6 +162,7 @@ function FolderNode({
           <span
             onClick={e => {
               e.stopPropagation();
+              if (!hasChildren) return;
               setCollapsedFolders((prev: Set<number>) => {
                 const next = new Set(prev);
                 if (next.has(folder.id)) next.delete(folder.id);
@@ -147,8 +170,8 @@ function FolderNode({
                 return next;
               });
             }}
-            className="mr-2 cursor-pointer select-none flex items-center"
-            title={isCollapsed ? "Expandir" : "Colapsar"}
+            className={`mr-2 cursor-pointer select-none flex items-center ${!hasChildren ? "opacity-40 pointer-events-none" : ""}`}
+            title={hasChildren ? (isCollapsed ? "Expandir" : "Colapsar") : "Sin subcarpetas"}
             style={{ color: "var(--folders-sidebar-text)" }}
           >
             {isCollapsed ? (
@@ -214,9 +237,17 @@ function FolderNode({
                   e.dataTransfer.setData("type", "note");
                   e.dataTransfer.setData("id", note.id);
                 }}
-                className="flex items-center gap-2 py-1 cursor-pointer hover:underline"
+                className="flex items-center gap-2 py-1 cursor-pointer hover:underline relative"
                 style={{ marginLeft: (level + 1) * 16, color: "var(--folders-sidebar-text)" }}
                 onClick={() => onSelectNote && onSelectNote(note)}
+                onContextMenu={e => {
+                  e.preventDefault();
+                  setContextMenu({
+                    x: e.clientX,
+                    y: e.clientY,
+                    note,
+                  });
+                }}
               >
                 <svg
                   width="1em"
@@ -230,6 +261,51 @@ function FolderNode({
                   <rect x="192" y="192" width="640" height="640" rx="120" ry="120" />
                 </svg>
                 <span style={{ color: "var(--folders-sidebar-text)" }}>{note.title}</span>
+                {/* Right click menu via portal */}
+                {contextMenu && contextMenu.note.id === note.id &&
+                  createPortal(
+                    <div
+                      ref={contextMenuRef}
+                      className="fixed z-50 bg-[var(--glass-bg)] border border-[var(--border)] rounded-xl shadow-lg flex flex-col min-w-[140px] py-1"
+                      style={{
+                        left: contextMenu.x,
+                        top: contextMenu.y,
+                        backdropFilter: "blur(8px) saturate(180%)",
+                        WebkitBackdropFilter: "blur(8px) saturate(180%)",
+                      }}
+                    >
+                      <button
+                        className="text-left px-4 py-1 hover:bg-[var(--accent)] hover:text-white rounded-xl transition"
+                        onClick={ev => {
+                          ev.stopPropagation();
+                          setContextMenu(null);
+                          onSelectNote && onSelectNote(note);
+                        }}
+                      >
+                        Open note
+                      </button>
+                      <button
+                        className="text-left px-4 py-1 hover:bg-red-600 hover:text-white rounded-xl transition"
+                        onClick={async ev => {
+                          ev.stopPropagation();
+                          setContextMenu(null);
+                          if (!confirm("¿Eliminar esta nota?")) return;
+                          const token = localStorage.getItem("token");
+                          const payload = token ? JSON.parse(atob(token.split(".")[1])) : {};
+                          const userId = payload.sub;
+                          await fetch(
+                            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777/api"}/notes/${note.id}?userId=${userId}`,
+                            { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
+                          );
+                          if (onMove) onMove();
+                        }}
+                      >
+                        Delete note
+                      </button>
+                    </div>,
+                    document.body
+                  )
+                }
               </li>
             ))}
           {folder.children &&
