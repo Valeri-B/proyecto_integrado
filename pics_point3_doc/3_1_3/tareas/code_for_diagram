@@ -1,9 +1,0 @@
-```mermaid
-stateDiagram-v2
-    [*] --> Pendiente
-    Pendiente --> Completada: Marcar como completada
-    Completada --> Pendiente: Marcar como pendiente
-    Pendiente --> Eliminada: Eliminar
-    Completada --> Eliminada: Eliminar
-    Eliminada --> [*]
-```
