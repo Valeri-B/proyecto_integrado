@@ -50,13 +50,13 @@ export default function SmallSidebar({ collapsed, onCollapse, onSelect, activeVi
         backdrop-blur-lg
         backdrop-saturate-200
         glass-border
-        ${collapsed ? "w-12" : "w-20"}
+        ${collapsed ? "w-10" : "w-10"}
         bg-clip-padding
       `}
       style={{
         height: "100%",
         minHeight: 0,
-        minWidth: collapsed ? 48 : 80,
+        minWidth: collapsed ? 48 : 48,
         background: "var(--glass-bg)",
         backdropFilter: "blur(1.5px)",
         WebkitBackdropFilter: "blur(1.5px)",
