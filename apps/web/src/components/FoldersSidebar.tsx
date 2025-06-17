@@ -171,7 +171,7 @@ function FolderNode({
               });
             }}
             className={`mr-2 cursor-pointer select-none flex items-center ${!hasChildren ? "opacity-40 pointer-events-none" : ""}`}
-            title={hasChildren ? (isCollapsed ? "Expandir" : "Colapsar") : "Sin subcarpetas"}
+            title={hasChildren ? (isCollapsed ? "Expand" : "Collapse") : "No subfolders"}
             style={{ color: "var(--folders-sidebar-text)" }}
           >
             {isCollapsed ? (
@@ -203,10 +203,10 @@ function FolderNode({
         <span style={{ color: "var(--folders-sidebar-text)" }}>{folder.name}</span>
         <button
           className="ml-auto p-1 hover:bg-gray-700 rounded"
-          title="Eliminar carpeta"
+          title="Delete folder"
           onClick={async (e) => {
             e.stopPropagation();
-            if (!confirm("¿Eliminar esta carpeta?")) return;
+            if (!confirm("Delete this folder?")) return;
             const token = localStorage.getItem("token");
             if (!token) return;
             const payload = JSON.parse(atob(token.split(".")[1]));
@@ -345,7 +345,7 @@ export default function FoldersSidebar({
   return (
     <aside
       className={`
-    flex flex-col
+    flex flex-col h-full
     border-r border-[var(--border)]
     shadow-lg
     transition-all duration-300
@@ -356,7 +356,8 @@ export default function FoldersSidebar({
     bg-clip-padding
   `}
       style={{
-        minWidth: collapsed ? 56 : 256,
+        height: "100%",
+        minHeight: 0,
         background: "var(--glass-bg)",
         backdropFilter: "blur(1.5px)",
         WebkitBackdropFilter: "blur(1.5px)",
@@ -376,7 +377,7 @@ export default function FoldersSidebar({
     bg-transparent
   `}
           onClick={onCollapse}
-          title={collapsed ? "Expandir" : "Colapsar"}
+          title={collapsed ? "Expand" : "Collapse"}
         >
           <svg
             viewBox="0 0 24 24"
@@ -457,7 +458,7 @@ export default function FoldersSidebar({
               }}
               onDragOver={e => e.preventDefault()}
             >
-              <span style={{ color: "var(--folders-sidebar-text)" }}>Zona Libre</span>
+              <span style={{ color: "var(--folders-sidebar-text)" }}>Free zone</span>
               <ul className="ml-4 list-none">
                 {notes.filter(note => getNoteFolderId(note) === null).map(note => (
                   <li

@@ -27,7 +27,7 @@ export default function LogoutButton() {
         localStorage.removeItem("token");
         router.push("/login");
       }}
-      title="Cerrar sesión"
+      title="Log out"
       type="button"
     >
       <svg

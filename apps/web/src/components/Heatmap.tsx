@@ -87,7 +87,11 @@ function getHeatmapDatesListGrid() {
 }
 
 // --- Color helpers ---
-function hexToHSL(hex: string) {
+function hexToHSL(hex: string | null | undefined) {
+  if (!hex || typeof hex !== "string" || (hex.length !== 4 && hex.length !== 7)) {
+    // Default to a safe color (e.g., #39d353)
+    hex = "#39d353";
+  }
   let r = 0, g = 0, b = 0;
   if (hex.length === 4) {
     r = parseInt(hex[1] + hex[1], 16);
@@ -144,7 +148,7 @@ function CreateHeatmapModal({ onClose, onCreate }: { onClose: () => void, onCrea
           aria-label="Cerrar"
         >×</button>
         <div className="text-lg font-bold mb-4" style={{ color: "var(--heatmap-text)" }}>
-          Crear nuevo heatmap
+          Create new heatmap
         </div>
         <form
           className="flex flex-col gap-4"
@@ -165,7 +169,7 @@ function CreateHeatmapModal({ onClose, onCreate }: { onClose: () => void, onCrea
             }}
             value={name}
             onChange={e => setName(e.target.value)}
-            placeholder="Nombre del heatmap"
+            placeholder="Heatmap name"
             required
             autoFocus
           />
@@ -191,7 +195,7 @@ function CreateHeatmapModal({ onClose, onCreate }: { onClose: () => void, onCrea
               color: "var(--heatmap-text)",
             }}
           >
-            Crear
+            Create
           </button>
         </form>
       </div>
@@ -245,7 +249,7 @@ function EditHeatmapModal({
         <button
           className="absolute top-3 right-3 text-gray-400 hover:text-red-600 text-2xl"
           onClick={onClose}
-          aria-label="Cerrar"
+          aria-label="Close"
         >×</button>
         <div className="text-lg font-bold mb-4"
           style={{
@@ -275,7 +279,7 @@ function EditHeatmapModal({
             }}
             value={name}
             onChange={e => setName(e.target.value)}
-            placeholder="Nombre del heatmap"
+            placeholder="Heatmap name"
             required
             autoFocus
           />
@@ -370,9 +374,11 @@ export default function Heatmap() {
     )
       .then(res => res.json())
       .then(data => {
-        // Always include the default heatmap if not present
         let maps = data;
-        if (!maps.some((h: any) => h.type === "default")) {
+        // Always include the default heatmap if not present
+        if (!maps || !maps.length) {
+          maps = [{ type: "default", color: "#39d353" }];
+        } else if (!maps.some((h: any) => h.type === "default")) {
           maps = [{ type: "default", color: "#39d353" }, ...maps];
         }
         setHeatmaps(maps);
@@ -418,7 +424,7 @@ export default function Heatmap() {
   // Log activity for selected heatmap (with timestamp)
   const logActivity = async (type: string) => {
     if (!userId) return;
-    const heatmap = heatmaps.find(h => h.type === type);
+    const heatmap = heatmaps.find(h => h.type === selectedHeatmap) || { color: "#39d353" };
     const todayLocal = getDateString(new Date());
     await fetch(
       `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:7777/api"}/activity/log`,
@@ -625,8 +631,8 @@ export default function Heatmap() {
                           aria-hidden={!isFirstLog}
                         >
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                            <rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <rect x="7" y="7" width="10" height="10" rx="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            <rect x="7" y="7" width="10" height="10" rx="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                           </svg>
                         </span>
                         <span
@@ -703,7 +709,7 @@ export default function Heatmap() {
           </div>
         ))}
       </div>
-      {loading && <div className="text-gray-400">Cargando...</div>}
+      {loading && <div className="text-gray-400">Loading...</div>}
       {showCreateModal && (
         <CreateHeatmapModal
           onClose={() => setShowCreateModal(false)}

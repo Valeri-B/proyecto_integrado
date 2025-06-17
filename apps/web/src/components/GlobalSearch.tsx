@@ -134,7 +134,7 @@ export default function GlobalSearch({
         <input
           ref={inputRef}
           type="text"
-          className="flex-1 bg-transparent outline-none border-none text-[var(--foreground)] text-base px-2"
+          className="flex-1 bg-transparent outline-none border-none text-[var(--foreground)] text-base px-2 global-search-modal-input"
           value={search}
           onChange={e => setSearch(e.target.value)}
           autoFocus={autoFocus}
@@ -239,7 +239,7 @@ export default function GlobalSearch({
                     <rect x="192" y="192" width="640" height="640" rx="120" ry="120" />
                   </svg>
                   <div className="text-sm mr-2" style={{ color: "var(--search-result-text)" }}>
-                    {result.type === "note-title" ? "Note" : "Contenido de nota"}
+                    {result.type === "note-title" ? "Note" : "Note Content"}
                   </div>
                   <div className="font-medium" style={{ color: "var(--search-result-text)" }}>
                     {result.type === "note-title"

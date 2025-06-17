@@ -157,7 +157,7 @@ export default function MainContent({
                 transition: "all 0.18s cubic-bezier(.4,2,.6,1)",
               }}
               onClick={() => setNotesView && setNotesView("grid")}
-              title="Vista de cuadrícula"
+              title="Grid view"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
                 <path fillRule="evenodd" d="M4.25 2A2.25 2.25 0 0 0 2 4.25v2.5A2.25 2.25 0 0 0 4.25 9h2.5A2.25 2.25 0 0 0 9 6.75v-2.5A2.25 2.25 0 0 0 6.75 2h-2.5Zm0 9A2.25 2.25 0 0 0 2 13.25v2.5A2.25 2.25 0 0 0 4.25 18h2.5A2.25 2.25 0 0 0 9 15.75v-2.5A2.25 2.25 0 0 0 6.75 11h-2.5Zm9-9A2.25 2.25 0 0 0 11 4.25v2.5A2.25 2.25 0 0 0 13.25 9h2.5A2.25 2.25 0 0 0 18 6.75v-2.5A2.25 2.25 0 0 0 15.75 2h-2.5Zm0 9A2.25 2.25 0 0 0 11 13.25v2.5A2.25 2.25 0 0 0 13.25 18h2.5A2.25 2.25 0 0 0 18 15.75v-2.5A2.25 2.25 0 0 0 15.75 11h-2.5Z" clipRule="evenodd" />
@@ -184,7 +184,7 @@ export default function MainContent({
                 transition: "all 0.18s cubic-bezier(.4,2,.6,1)",
               }}
               onClick={() => setNotesView && setNotesView("list")}
-              title="Vista de lista"
+              title="List view"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
                 <path d="M2 4.5A2.5 2.5 0 0 1 4.5 2h11a2.5 2.5 0 0 1 0 5h-11A2.5 2.5 0 0 1 2 4.5ZM2.75 9.083a.75.75 0 0 0 0 1.5h14.5a.75.75 0 0 0 0-1.5H2.75ZM2.75 12.663a.75.75 0 0 0 0 1.5h14.5a.75.75 0 0 0 0-1.5H2.75ZM2.75 16.25a.75.75 0 0 0 0 1.5h14.5a.75.75 0 1 0 0-1.5H2.75Z" />
@@ -362,7 +362,7 @@ export default function MainContent({
                     ? getNoteFolderId(note) === null
                     : getNoteFolderId(note) === selectedFolderSidebarId
                 ).length === 0 && (
-                  <div className="text-gray-400">No hay carpetas ni notas en esta carpeta.</div>
+                  <div className="text-gray-400">There are no folders nor notes here.</div>
                 )}
             </div>
           ) : (
@@ -410,7 +410,7 @@ export default function MainContent({
                     ? getNoteFolderId(note) === null
                     : getNoteFolderId(note) === selectedFolderSidebarId
                 ).length === 0 && (
-                  <div className="text-gray-400">No hay carpetas ni notas en esta carpeta.</div>
+                  <div className="text-gray-400">There are no folders nor notes here.</div>
                 )}
             </div>
           )}
