@@ -304,31 +304,37 @@ body {
   animation-delay: 0.28s;
 }
 
-.shiny-gradient {
-  background: linear-gradient(90deg,
-      var(--accent) 0%,
-      #fff 40%,
-      var(--accent) 60%,
-      var(--accent-hover) 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  animation: shine 6.9s linear infinite;
-  position: relative;
+.chrome-shine {
   display: inline-block;
+  font-weight: bold;
+  position: relative;
+  color: #f53d4f;
+  background: linear-gradient(
+    120deg,
+    #f53d4f 0%,
+    #f53d4f 20%,
+    #ffffff 50%,
+    #f53d4f 80%,
+    #f53d4f 100%
+  );
+  background-size: 200% 100%;
+  background-position: 0% 0;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: chrome-shine 3s linear infinite;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
 }
 
-@keyframes shine {
+@keyframes chrome-shine {
   0% {
-    background-position: 200% 0;
+    background-position: -100% 0;
   }
-
   100% {
-    background-position: -200% 0;
+    background-position: 100% 0;
   }
 }
+
 
 .animated-border {
   position: relative;
@@ -401,12 +407,13 @@ body {
   text-decoration: underline;
   transition: color 0.2s;
 }
+
 .markdown-preview a:hover {
   color: var(--accent-hover) !important;
 }
 
 .markdown-preview code {
-  background: rgba(0,0,0,0.12) !important;
+  background: rgba(0, 0, 0, 0.12) !important;
   color: var(--accent-brown) !important;
   border-radius: 0.5rem !important;
   padding: 0.2em 0.5em !important;
@@ -415,7 +422,7 @@ body {
 }
 
 .markdown-preview pre {
-  background: rgba(0,0,0,0.08) !important;
+  background: rgba(0, 0, 0, 0.08) !important;
   border-radius: 0.75rem !important;
   padding: 1em !important;
   overflow-x: auto;
@@ -430,7 +437,7 @@ body {
   background: var(--panel);
   border-radius: 0.75rem;
   overflow: hidden;
-  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
 }
 
 .markdown-preview th,
@@ -473,21 +480,24 @@ body {
   margin: 1.5em 0;
   border-radius: 0.75rem;
   font-weight: 500;
-  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
 }
 
 .markdown-preview .info {
   border-color: #3b82f6;
   background: rgba(59, 130, 246, 0.08);
 }
+
 .markdown-preview .warning {
   border-color: #facc15;
   background: rgba(250, 204, 21, 0.08);
 }
+
 .markdown-preview .success {
   border-color: #22c55e;
   background: rgba(34, 197, 94, 0.08);
 }
+
 .markdown-preview .danger {
   border-color: #ef4444;
   background: rgba(239, 68, 68, 0.08);
@@ -504,6 +514,7 @@ body {
 .markdown-preview ul {
   list-style-type: disc !important;
 }
+
 .markdown-preview ol {
   list-style-type: decimal !important;
 }
@@ -1113,10 +1124,12 @@ body {
 .markdown-preview dt * {
   color: var(--definition-term-color, #fff);
 }
+
 [data-theme="light"] .markdown-preview dt,
 [data-theme="light"] .markdown-preview dt * {
   color: #111;
 }
+
 [data-theme="dark"] .markdown-preview dt,
 [data-theme="dark"] .markdown-preview dt * {
   color: #fff;
@@ -1126,12 +1139,15 @@ body {
 :root {
   --text-mark-highlighting: #ffe28e;
 }
+
 [data-theme="dark"] {
   --text-mark-highlighting: #ffe28e;
 }
+
 [data-theme="light"] {
   --text-mark-highlighting: #ffe28e;
 }
+
 /* Only use the mark selector */
 .markdown-preview mark {
   background: var(--text-mark-highlighting) !important;
@@ -1139,9 +1155,11 @@ body {
   padding: 0.1em 0.3em;
   border-radius: 0.3em;
 }
+
 [data-theme="dark"] .markdown-preview mark {
   color: #222 !important;
 }
+
 [data-theme="light"] .markdown-preview mark {
   color: #111 !important;
 }
@@ -1149,11 +1167,12 @@ body {
 /* --- Indented code (inline code and code blocks) --- */
 .markdown-preview code {
   color: #111 !important;
-  background: rgba(0,0,0,0.08) !important;
+  background: rgba(0, 0, 0, 0.08) !important;
 }
+
 [data-theme="dark"] .markdown-preview code {
   color: #fff !important;
-  background: rgba(255,255,255,0.08) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
 /* --- Block code fences --- */
@@ -1162,6 +1181,7 @@ body {
   color: #111 !important;
   background: #f5f5f5 !important;
 }
+
 [data-theme="dark"] .markdown-preview pre,
 [data-theme="dark"] .markdown-preview pre code {
   color: #fff !important;
@@ -1175,11 +1195,13 @@ body {
   color: inherit !important;
   background: none !important;
 }
+
 .markdown-preview .hljs-comment,
 .markdown-preview .hljs-quote {
   color: #6a9955 !important;
   font-style: italic;
 }
+
 .markdown-preview .hljs-keyword,
 .markdown-preview .hljs-selector-tag,
 .markdown-preview .hljs-literal,
@@ -1187,6 +1209,7 @@ body {
 .markdown-preview .hljs-link {
   color: #d73a49 !important;
 }
+
 .markdown-preview .hljs-string,
 .markdown-preview .hljs-title,
 .markdown-preview .hljs-name,
@@ -1197,33 +1220,42 @@ body {
 .markdown-preview .hljs-addition {
   color: #b392f0 !important;
 }
+
 .markdown-preview .hljs-number,
 .markdown-preview .hljs-selector-attr,
 .markdown-preview .hljs-selector-pseudo {
   color: #005cc5 !important;
 }
+
 .markdown-preview .hljs-subst {
   color: inherit !important;
 }
+
 .markdown-preview .hljs-meta {
   color: #b392f0 !important;
 }
+
 .markdown-preview .hljs-built_in,
 .markdown-preview .hljs-builtin-name {
   color: #e36209 !important;
 }
+
 .markdown-preview .hljs-emphasis {
   font-style: italic;
 }
+
 .markdown-preview .hljs-strong {
   font-weight: bold;
 }
 
 /* Hide vertical scrollbar in markdown preview (Chrome, Edge, Safari) */
 .markdown-preview {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
 }
+
 .markdown-preview::-webkit-scrollbar {
   width: 0px;
   height: 0px;
@@ -1232,14 +1264,22 @@ body {
 }
 
 .notifications-scroll {
-  max-height: calc(100vh - 300px); /* adjust 300px as needed for header/footer */
+  max-height: calc(100vh - 300px);
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+
 .notifications-scroll::-webkit-scrollbar {
   width: 0;
   height: 0;
   background: transparent;
   display: none;
+}
+
+
+@media (max-width: 768px) {
+  .sidebar, .productivity-panel {
+    display: none !important;
+  }
 }

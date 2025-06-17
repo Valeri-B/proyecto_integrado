@@ -114,7 +114,7 @@ export default function LoginPage() {
                 </button>
                 <div className="mt-4 text-[var(--accent-muted)] text-sm text-center">
                     Don&apos;t have an account?{" "}
-                    <a href="/register" className="shiny-link">Register</a>
+                    <a href="/register" className="chrome-shine">Register</a>
                 </div>
                 <hr className="my-4 border-[var(--border)]" />
                 <div className="flex flex-col items-center">

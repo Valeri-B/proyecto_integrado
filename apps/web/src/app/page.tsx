@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import SmallSidebar from "@/components/SmallSidebar";
 import Heatmap from "@/components/Heatmap";
 import FoldersSidebar from "@/components/FoldersSidebar";
@@ -15,6 +16,7 @@ import LogoutButton from "@/components/LogoutButton";
 import TagResultsModal from "@/components/TagResultsModal";
 import AdminPanel from "@/components/AdminPanel";
 import TagsManagerModal from "@/components/TagsManagerModal";
+import MobileDock from "@/components/MobileDock";
 
 function getNoteFolderId(note: any): number | null {
   if (typeof note.folderId === "number") return note.folderId;
@@ -59,7 +61,7 @@ export default function Home() {
   const [newFolderName, setNewFolderName] = useState("");
   const [newFolderColor, setNewFolderColor] = useState("#8b232d");
   const [parentFolderId, setParentFolderId] = useState<number | null>(null);
-
+  const [showTagsModal, setShowTagsModal] = useState(false);
   const [fabExpanded, setFabExpanded] = useState(false);
 
   const [userId, setUserId] = useState<number | null>(null);
@@ -68,8 +70,6 @@ export default function Home() {
   // FAB state
   const [showFabModal, setShowFabModal] = useState(false);
   const [fabMode, setFabMode] = useState<"note" | "folder" | null>(null);
-  const [showTagsModal, setShowTagsModal] = useState(false);
-  const [newFolderColor2, setNewFolderColor2] = useState("#8b232d");
 
   // Calendar modal state
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -103,6 +103,7 @@ export default function Home() {
   };
 
   // Left and right sidebar states
+  const isMobile = useIsMobile();
   const [showLeftSidebar, setShowLeftSidebar] = useState(false);
   const [showRightSidebar, setShowRightSidebar] = useState(false);
 
@@ -378,20 +379,20 @@ export default function Home() {
       );
     }
     setShowGlobalSearch(false);
-    setActiveView("notes");
+    setActiveView(v => v === "admin" ? v : "notes");
   };
 
   // --- Open folder from search modal ---
   const handleOpenFolder = (folder: any) => {
     setSelectedFolderSidebarId(folder.id);
-    setActiveView("notes");
+    setActiveView(v => v === "admin" ? v : "notes");
     setSelectedNote(null);
     setShowGlobalSearch(false);
   };
 
   // --- Open task from search modal ---
   const handleOpenTask = (task: any) => {
-    setActiveView("folders");
+    setActiveView(v => v === "admin" ? v : "folders");
     setShiningTaskId(task.id);
     setShowGlobalSearch(false);
   };
@@ -523,6 +524,23 @@ export default function Home() {
     );
   };
 
+  // Add these lines for the dock
+  const [showDock, setShowDock] = useState(true);
+  const lastScroll = useRef(0);
+
+  // Add scroll detection for dock
+  useEffect(() => {
+    if (!isMobile) return;
+    function onScroll() {
+      const curr = window.scrollY;
+      if (curr > lastScroll.current && curr > 40) setShowDock(false); // scroll down
+      else setShowDock(true); // scroll up
+      lastScroll.current = curr;
+    }
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isMobile]);
+
   // --- Wait for userId before rendering MainContent/TasksBoard ---
   if (!userId) {
     return <div className="text-white p-8">Loading...</div>;
@@ -531,212 +549,360 @@ export default function Home() {
   if (!Array.isArray(folders)) return null;
 
   return (
-    <div className="flex min-h-screen bg-[var(--background)]">
-      <SmallSidebar
-        collapsed={sidebarCollapsed}
-        onCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
-        onSelect={setActiveView}
-        activeView={activeView}
-        isAdmin={userRole === "admin"}
-      />
-      {activeView === "admin" && userRole === "admin" ? (
+    <div className="flex h-screen w-full">
+      {/* --- DESKTOP: SmallSidebar, FoldersSidebar --- */}
+      {!isMobile && (
         <>
-          <div className="flex-1">
-            <AdminPanel token={localStorage.getItem("token") || ""} />
-          </div>
-          <ProductivityPanel
+          <SmallSidebar
             collapsed={sidebarCollapsed}
-            setCollapsed={setSidebarCollapsed}
-            productivityCollapsed={productivityCollapsed}
-            setProductivityCollapsed={setProductivityCollapsed}
-            notifications={notifications}
-            handleTaskToggleFromNotification={handleTaskToggleFromNotification}
-            dismissNotification={dismissNotification}
-            showGlobalSearch={showGlobalSearch}
-            setShowGlobalSearch={setShowGlobalSearch}
-            calendarVisible={calendarVisible}
-            setCalendarVisible={setCalendarVisible}
-            smallSearchInputRef={smallSearchInputRef}
-            setShowFabModal={setShowFabModal}
-            setFabMode={setFabMode}
-            userId={userId}
-            tags={tags}
-            onCreateTag={handleCreateTag}
-            onEditTag={handleEditTag}
-            onDeleteTag={handleDeleteTag}
+            onCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+            onSelect={setActiveView}
+            activeView={activeView}
+            isAdmin={userRole === "admin"}
           />
-        </>
-      ) : (
-        <>
-          {activeView === "notes" && (
+          {activeView !== "admin" && (
             <FoldersSidebar
               folders={folders}
               notes={notes}
-              onSelectFolder={id => {
-                if (selectedNote && noteDraft !== (selectedNote.content ?? "")) {
-                  setShowUnsavedModal(true);
-                  setPendingClose({ type: "folder", id });
-                  return;
-                }
-                setSelectedNote(null);
-                setNoteDraft(EMPTY_MARKDOWN);
-                setNoteMaximized(false);
-                setSelectedFolderSidebarId(id);
-              }}
+              onSelectFolder={setSelectedFolderSidebarId}
               selectedFolderId={selectedFolderSidebarId}
               collapsed={sidebarCollapsed}
-              onCollapse={() => setSidebarCollapsed(c => !c)}
+              onCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
               onMove={refetchNotesAndFolders}
-              onSelectNote={async note => {
-                if (selectedNote && noteDraft !== (selectedNote.content ?? "")) {
-                  setShowUnsavedModal(true);
-                  setPendingClose({ type: "note", note });
-                  return;
-                }
-                await handleOpenNote(note);
-              }}
+              onSelectNote={setSelectedNote}
             />
-          )}
-          <main className="flex-1 bg-[var(--background)] p-8 relative overflow-hidden">
-            <MainContent
-              activeView={activeView}
-              notes={notes}
-              folders={folders}
-              tasks={tasks}
-              selectedNote={selectedNote}
-              setSelectedNote={setSelectedNote}
-              noteDraft={noteDraft}
-              setNoteDraft={setNoteDraft}
-              userId={userId}
-              tasksBoardKey={tasksBoardKey}
-              shiningTaskId={shiningTaskId}
-              onShineEnd={() => setShiningTaskId(null)}
-              onOpenNote={handleOpenNote}
-              onMove={refetchNotesAndFolders}
-              selectedFolderSidebarId={selectedFolderSidebarId}
-              setSelectedFolderSidebarId={setSelectedFolderSidebarId}
-              notesView={notesView}
-              setNotesView={setNotesView}
-              foldersSidebarCollapsed={sidebarCollapsed}
-              onSaveNote={handleSaveNote}
-              onCloseNote={handleCloseNote}
-              tags={tags}
-              handleEditTag={handleEditTag}
-              handleDeleteTag={handleDeleteTag}
-              handleCreateTag={handleCreateTag}
-              updateNoteTags={updateNoteTags}
-            />
-            {/* Unsaved changes modal */}
-            {showUnsavedModal && (
-              <div className="fixed inset-0 z-60 flex items-center justify-center bg-black bg-opacity-60">
-                <div className="bg-[var(--panel)] rounded-2xl shadow-2xl border border-[var(--border)] p-8 max-w-md w-full flex flex-col items-center">
-                  <div className="mb-4 text-lg font-bold text-[var(--foreground)]">Tienes cambios sin guardar</div>
-                  <div className="flex gap-4">
-                    <button className="px-4 py-2 bg-green-600 text-white rounded" onClick={handleUnsavedSave}>Guardar y salir</button>
-                    <button className="px-4 py-2 bg-red-600 text-white rounded" onClick={handleUnsavedDiscard}>Descartar cambios</button>
-                    <button className="px-4 py-2 bg-gray-600 text-white rounded" onClick={handleUnsavedCancel}>Cancelar</button>
-                  </div>
-                </div>
-              </div>
-            )}
-            {showTagResults && (
-              <TagResultsModal
-                tag={showTagResults.tag}
-                notes={notes}
-                tasks={tasks}
-                onClose={() => setShowTagResults(null)}
-                onOpenNote={handleOpenNote}
-                onOpenTask={handleOpenTask}
-              />
-            )}
-          </main>
-          <ProductivityPanel
-            collapsed={sidebarCollapsed}
-            setCollapsed={setSidebarCollapsed}
-            productivityCollapsed={productivityCollapsed}
-            setProductivityCollapsed={setProductivityCollapsed}
-            notifications={notifications}
-            handleTaskToggleFromNotification={handleTaskToggleFromNotification}
-            dismissNotification={dismissNotification}
-            showGlobalSearch={showGlobalSearch}
-            setShowGlobalSearch={setShowGlobalSearch}
-            calendarVisible={calendarVisible}
-            setCalendarVisible={setCalendarVisible}
-            smallSearchInputRef={smallSearchInputRef}
-            setShowFabModal={setShowFabModal}
-            setFabMode={setFabMode}
-            userId={userId}
-            tags={tags}
-            onCreateTag={handleCreateTag}
-            onEditTag={handleEditTag}
-            onDeleteTag={handleDeleteTag}
-            showTagsModal={showTagsModal}
-            setShowTagsModal={setShowTagsModal}
-            onCalendarDayClick={(date: Date) => {
-              setSelectedDate(date);
-              setShowTaskModal(true);
-              setNewTaskContent("");
-            }}
-          />
-          {showGlobalSearch && (
-            <GlobalSearch
-              notes={notes}
-              folders={folders}
-              tasks={tasks}
-              tags={tags}
-              onOpenNote={handleOpenNote}
-              onOpenFolder={handleOpenFolder}
-              onOpenTask={handleOpenTask}
-              onOpenTagResults={handleOpenTagResults}
-              showModal={showGlobalSearch}
-              setShowModal={setShowGlobalSearch}
-              autoFocus={true}
-            />
-          )}
-          {showFabModal && (
-            <FabModal
-              fabMode={fabMode}
-              setFabMode={setFabMode}
-              setShowFabModal={setShowFabModal}
-              handleCreateNote={handleCreateNote}
-              handleCreateFolder={handleCreateFolder}
-              newNoteTitle={newNoteTitle}
-              setNewNoteTitle={setNewNoteTitle}
-              newFolderName={newFolderName}
-              setNewFolderName={setNewFolderName}
-              newFolderColor={newFolderColor}
-              setNewFolderColor={setNewFolderColor}
-              creating={creating}
-              folders={folders}
-              parentFolderId={parentFolderId}
-              setParentFolderId={setParentFolderId}
-            />
-          )}
-          {showTagsModal && (
-            <TagsManagerModal
-              tags={tags}
-              onClose={() => setShowTagsModal(false)}
-              onCreate={handleCreateTag}
-              onEdit={handleEditTag}
-              onDelete={handleDeleteTag}
-              userId={userId}
-            />
-          )}
-          {showTaskModal && (
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center">
-              <DraggableTaskModal
-                selectedDate={selectedDate}
-                newTaskContent={newTaskContent}
-                setNewTaskContent={setNewTaskContent}
-                creatingTask={creatingTask}
-                onClose={() => setShowTaskModal(false)}
-                onSubmit={handleCreateTaskForDate}
-              />
-            </div>
           )}
         </>
       )}
+
+      {/* --- MAIN CONTENT --- */}
+      <main className="flex-1 min-h-0">
+        {/* Show AdminPanel if activeView is admin */}
+        {activeView === "admin" ? (
+          <AdminPanel token={localStorage.getItem("token") || ""} />
+        ) : (
+          <MainContent
+            activeView={activeView}
+            notes={notes}
+            folders={folders}
+            tasks={tasks}
+            selectedNote={selectedNote}
+            setSelectedNote={setSelectedNote}
+            noteDraft={noteDraft}
+            setNoteDraft={setNoteDraft}
+            userId={userId}
+            tasksBoardKey={tasksBoardKey}
+            shiningTaskId={shiningTaskId}
+            onShineEnd={() => setShiningTaskId(null)}
+            onOpenNote={handleOpenNote}
+            onMove={refetchNotesAndFolders}
+            selectedFolderSidebarId={selectedFolderSidebarId}
+            setSelectedFolderSidebarId={setSelectedFolderSidebarId}
+            notesView={notesView}
+            setNotesView={setNotesView}
+            foldersSidebarCollapsed={sidebarCollapsed}
+            onSaveNote={handleSaveNote}
+            onCloseNote={handleCloseNote}
+            tags={tags}
+            handleEditTag={handleEditTag}
+            handleDeleteTag={handleDeleteTag}
+            handleCreateTag={handleCreateTag}
+            updateNoteTags={updateNoteTags}
+          />
+        )}
+        {/* Unsaved changes modal */}
+        {showUnsavedModal && (
+          <div className="fixed inset-0 z-60 flex items-center justify-center" style={{
+            backdropFilter: "blur(10px) saturate(150%)",
+            WebkitBackdropFilter: "blur(15px) saturate(150%)",
+            transition: "background 0.3s ease-in-out",
+          }}>
+            <div
+              className="bg-[var(--glass-bg)] rounded-4xl shadow-2xl border border-white/30 p-8 max-w-md w-full flex flex-col items-center backdrop-blur-lg backdrop-saturate-200"
+              style={{
+                background: "var(--glass-bg)",
+                backdropFilter: "blur(12px) saturate(200%)",
+                WebkitBackdropFilter: "blur(12px) saturate(200%)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                transition: "transform 0.3s ease-in-out, opacity 0.3s ease-in-out",
+              }}
+            >
+              <div className="mb-4 text-lg font-bold text-white flex flex-col items-center justify-center gap-2">
+                <span className="flex items-center gap-2">
+                  Stop
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="red" className="size-5">
+                    <path fillRule="evenodd" d="M11 2a1 1 0 1 0-2 0v6.5a.5.5 0 0 1-1 0V3a1 1 0 1 0-2 0v5.5a.5.5 0 0 1-1 0V5a1 1 0 1 0-2 0v7a7 7 0 1 0 14 0V8a1 1 0 1 0-2 0v3.5a.5.5 0 0 1-1 0V3a1 1 0 1 0-2 0v5.5a.5.5 0 0 1-1 0V2Z" clipRule="evenodd" />
+                  </svg>
+                </span>
+                <span>Unsaved changes</span>
+              </div>
+              <div className="flex flex-col gap-4 w-full">
+                <div className="flex gap-6 justify-center">
+                  <button
+                    className="px-6 py-3 rounded-lg shadow-md transform hover:scale-105 transition-all duration-200 ease-in-out group"
+                    style={{
+                      background: "var(--glass-bg)",
+                      border: "1px solid var(--border)",
+                      backdropFilter: "blur(8px) saturate(180%)",
+                      WebkitBackdropFilter: "blur(8px) saturate(180%)",
+                      color: "#fff",
+                      boxShadow: "0 4px 32px 0 rgba(0,0,0,0.08)",
+                    }}
+                    onClick={handleUnsavedSave}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.boxShadow =
+                        "0 0 0 3px #22ff88, 0 4px 32px 0 rgba(0,0,0,0.08)";
+                      e.currentTarget.style.borderColor = "#22ff88";
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.boxShadow =
+                        "0 4px 32px 0 rgba(0,0,0,0.08)";
+                      e.currentTarget.style.borderColor = "var(--border)";
+                    }}
+                  >
+                    Save &amp; exit
+                  </button>
+                  <button
+                    className="px-6 py-3 rounded-lg shadow-md transform hover:scale-105 transition-all duration-200 ease-in-out group"
+                    style={{
+                      background: "var(--glass-bg)",
+                      border: "1px solid var(--border)",
+                      backdropFilter: "blur(8px) saturate(180%)",
+                      WebkitBackdropFilter: "blur(8px) saturate(180%)",
+                      color: "#fff",
+                      boxShadow: "0 4px 32px 0 rgba(0,0,0,0.08)",
+                    }}
+                    onClick={handleUnsavedDiscard}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.boxShadow =
+                        "0 0 0 3px #ff2255, 0 4px 32px 0 rgba(0,0,0,0.08)";
+                      e.currentTarget.style.borderColor = "#ff2255";
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.boxShadow =
+                        "0 4px 32px 0 rgba(0,0,0,0.08)";
+                      e.currentTarget.style.borderColor = "var(--border)";
+                    }}
+                  >
+                    Undo &amp; exit
+                  </button>
+                </div>
+                <div className="flex justify-center">
+                  <button
+                    className="px-6 py-3 rounded-lg shadow-md transform hover:scale-105 transition-all duration-200 ease-in-out group"
+                    style={{
+                      background: "var(--glass-bg)",
+                      border: "1px solid var(--border)",
+                      backdropFilter: "blur(8px) saturate(180%)",
+                      WebkitBackdropFilter: "blur(8px) saturate(180%)",
+                      color: "#fff",
+                      boxShadow: "0 4px 32px 0 rgba(0,0,0,0.08)",
+                    }}
+                    onClick={handleUnsavedCancel}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.boxShadow =
+                        "0 0 0 3px #ff2255, 0 4px 32px 0 rgba(0,0,0,0.08)";
+                      e.currentTarget.style.borderColor = "#ff2255";
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.boxShadow =
+                        "0 4px 32px 0 rgba(0,0,0,0.08)";
+                      e.currentTarget.style.borderColor = "var(--border)";
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        )}
+        {showTagResults && (
+          <TagResultsModal
+            tag={showTagResults.tag}
+            notes={notes}
+            tasks={tasks}
+            onClose={() => setShowTagResults(null)}
+            onOpenNote={handleOpenNote}
+            onOpenTask={handleOpenTask}
+          />
+        )}
+        {showTaskModal && (
+          <DraggableTaskModal
+            selectedDate={selectedDate}
+            newTaskContent={newTaskContent}
+            setNewTaskContent={setNewTaskContent}
+            creatingTask={creatingTask}
+            onClose={() => setShowTaskModal(false)}
+            onSubmit={handleCreateTaskForDate}
+          />
+        )}
+      </main>
+
+      {/* --- DESKTOP: ProductivityPanel always on the right --- */}
+      {!isMobile && activeView !== "admin" && (
+        <ProductivityPanel
+          collapsed={productivityCollapsed}
+          setCollapsed={setProductivityCollapsed}
+          productivityCollapsed={productivityCollapsed}
+          setProductivityCollapsed={setProductivityCollapsed}
+          notifications={notifications}
+          handleTaskToggleFromNotification={handleTaskToggleFromNotification}
+          dismissNotification={dismissNotification}
+          showGlobalSearch={showGlobalSearch}
+          setShowGlobalSearch={setShowGlobalSearch}
+          calendarVisible={calendarVisible}
+          setCalendarVisible={setCalendarVisible}
+          smallSearchInputRef={smallSearchInputRef}
+          setShowFabModal={setShowFabModal}
+          setFabMode={setFabMode}
+          userId={userId}
+          tags={tags}
+          onCreateTag={handleCreateTag}
+          onEditTag={handleEditTag}
+          onDeleteTag={handleDeleteTag}
+          showTagsModal={showTagsModal}
+          setShowTagsModal={setShowTagsModal}
+          onCalendarDayClick={date => {
+            setSelectedDate(date);
+            setShowTaskModal(true);
+          }}
+        />
+      )}
+
+      {/* --- MOBILE: Left Sidebar Drawer --- */}
+      {isMobile && showLeftSidebar && (
+        <div className="fixed inset-0 z-60 bg-black/40" onClick={() => setShowLeftSidebar(false)}>
+          <div
+            className="fixed top-0 left-0 w-3/5 max-w-xs bg-[var(--panel)] shadow-lg flex flex-col sm:w-4/5"
+            style={{
+              height: "100vh",
+              maxHeight: "100vh",
+              minHeight: "100vh",
+              overflowY: "auto",
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <FoldersSidebar
+              folders={folders}
+              notes={notes}
+              onSelectFolder={setSelectedFolderSidebarId}
+              selectedFolderId={selectedFolderSidebarId}
+              onCollapse={() => setShowLeftSidebar(false)}
+              onSelectNote={setSelectedNote}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* --- MOBILE: Right Sidebar Drawer --- */}
+      {isMobile && showRightSidebar && (
+        <div className="fixed inset-0 z-60 bg-black/40" onClick={() => setShowRightSidebar(false)}>
+          <div
+            className="fixed top-0 right-0 w-4/5 max-w-xs bg-[var(--panel)] shadow-lg flex flex-col"
+            style={{
+              height: "100vh",
+              maxHeight: "100vh",
+              minHeight: "100vh",
+              overflowY: "auto",
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <ProductivityPanel
+              collapsed={false}
+              setCollapsed={() => setShowRightSidebar(false)}
+              productivityCollapsed={false}
+              setProductivityCollapsed={() => { }}
+              notifications={notifications}
+              handleTaskToggleFromNotification={handleTaskToggleFromNotification}
+              dismissNotification={dismissNotification}
+              showGlobalSearch={showGlobalSearch}
+              setShowGlobalSearch={setShowGlobalSearch}
+              calendarVisible={calendarVisible}
+              setCalendarVisible={setCalendarVisible}
+              smallSearchInputRef={smallSearchInputRef}
+              setShowFabModal={setShowFabModal}
+              setFabMode={setFabMode}
+              userId={userId}
+              tags={tags}
+              onCreateTag={handleCreateTag}
+              onEditTag={handleEditTag}
+              onDeleteTag={handleDeleteTag}
+              showTagsModal={showTagsModal}
+              setShowTagsModal={setShowTagsModal}
+              onCalendarDayClick={date => {
+                setSelectedDate(date);
+                setShowTaskModal(true);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* --- MOBILE: Bottom Dock --- */}
+      {isMobile && (
+        <MobileDock
+          userRole={userRole}
+          setActiveView={setActiveView}
+          setShowGlobalSearch={setShowGlobalSearch}
+          setFabMode={setFabMode}
+          setShowFabModal={setShowFabModal}
+          setShowLeftSidebar={setShowLeftSidebar}      // <-- add this
+          setShowRightSidebar={setShowRightSidebar}    // <-- add this
+        />
+      )}
+
+      {/* --- Global Search Modal (only when open) --- */}
+      {showGlobalSearch && (
+        <GlobalSearch
+          notes={notes}
+          folders={folders}
+          tasks={tasks}
+          tags={tags}
+          onOpenNote={handleOpenNote}
+          onOpenFolder={handleOpenFolder}
+          onOpenTask={handleOpenTask}
+          onOpenTagResults={handleOpenTagResults}
+          showModal={showGlobalSearch}
+          setShowModal={setShowGlobalSearch}
+          autoFocus={true}
+        />
+      )}
+
+      {/* FabModal for new note/folder */}
+      {showFabModal && (
+        <FabModal
+          fabMode={fabMode}
+          setFabMode={setFabMode}
+          setShowFabModal={setShowFabModal}
+          handleCreateNote={handleCreateNote}
+          handleCreateFolder={handleCreateFolder}
+          newNoteTitle={newNoteTitle}
+          setNewNoteTitle={setNewNoteTitle}
+          newFolderName={newFolderName}
+          setNewFolderName={setNewFolderName}
+          newFolderColor={newFolderColor}
+          setNewFolderColor={setNewFolderColor}
+          creating={creating}
+          folders={folders}
+          parentFolderId={parentFolderId}
+          setParentFolderId={setParentFolderId}
+        />
+      )}
+
+      {/* 3. Render the TagsManagerModal */}
+      {showTagsModal && (
+        <TagsManagerModal
+          tags={tags}
+          onClose={() => setShowTagsModal(false)}
+          onCreate={handleCreateTag}
+          onEdit={handleEditTag}
+          onDelete={handleDeleteTag}
+          userId={userId}
+        />
+      )}
+
     </div>
   );
 }

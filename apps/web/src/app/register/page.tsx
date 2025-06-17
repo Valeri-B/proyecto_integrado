@@ -242,7 +242,7 @@ export default function RegisterPage() {
                 </button>
                 <div className="mt-4 text-[var(--accent-muted)] text-sm text-center">
                     Already have an account?{" "}
-                    <a href="/login" className="shiny-link">Login</a>
+                    <a href="/login" className="chrome-shine">Login</a>
                 </div>
             </form>
             {/* Theme toggle button in bottom right */}
