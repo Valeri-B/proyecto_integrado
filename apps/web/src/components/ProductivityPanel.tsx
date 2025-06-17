@@ -57,7 +57,7 @@ export default function ProductivityPanel({
   return (
     <aside
       className={`
-        flex flex-col
+        flex flex-col h-full
         border-l border-[var(--border)]
         shadow-lg
         transition-all duration-300
@@ -66,6 +66,8 @@ export default function ProductivityPanel({
         ${productivityCollapsed ? "w-14 p-2" : "w-80 p-8"}
       `}
       style={{
+        height: "100%",
+        minHeight: 0,
         minWidth: productivityCollapsed ? 56 : 320,
         background: "rgba(255, 255, 255, 0.05)",
         backdropFilter: "blur(1.5px)",
@@ -213,7 +215,7 @@ export default function ProductivityPanel({
               }}
             >
               <div>
-                <div className="font-bold text-[var(--accent)] mb-1">Recordatorio</div>
+                <div className="font-bold text-[var(--accent)] mb-1">Reminder</div>
                 <div className="text-xs text-[var(--accent-muted)] mt-1">
                   {new Date(n.remindAt).toLocaleString()}
                 </div>

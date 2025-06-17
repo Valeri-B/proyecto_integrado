@@ -69,7 +69,7 @@ export default function TaskList({ noteId, userId }: { noteId?: number; userId?:
     const res = await fetch(`/api/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(noteId ? { noteId, content: "Nueva tarea" } : { userId, content: "Nueva tarea" }),
+      body: JSON.stringify(noteId ? { noteId, content: "New task" } : { userId, content: "New task" }),
     });
     const task = await res.json();
     setTasks(tasks => [...tasks, task]);
@@ -78,7 +78,7 @@ export default function TaskList({ noteId, userId }: { noteId?: number; userId?:
 
   // FAB: Add a list of three tasks
   const handleAddTaskList = async () => {
-    const newTasks = ["Tarea 1", "Tarea 2", "Tarea 3"];
+    const newTasks = ["Task 1", "Task 2", "Task 3"];
     for (const content of newTasks) {
       await fetch(`/api/tasks`, {
         method: "POST",
@@ -132,11 +132,11 @@ export default function TaskList({ noteId, userId }: { noteId?: number; userId?:
     });
   };
 
-  if (!noteId && !userId) return <div className="text-white">Selecciona una nota o usuario para ver las tareas.</div>;
+  if (!noteId && !userId) return <div className="text-white">Select note or user to see tasks</div>;
 
   return (
     <div className="text-white max-w-md mx-auto relative">
-      <h2 className="text-xl font-bold mb-4">Tareas</h2>
+      <h2 className="text-xl font-bold mb-4">Tasks</h2>
       <form onSubmit={addTask} className="flex gap-2 mb-4">
         <input
           className="flex-1 p-2 rounded bg-gray-800 border border-gray-700 text-white"
@@ -145,11 +145,11 @@ export default function TaskList({ noteId, userId }: { noteId?: number; userId?:
           placeholder="Nueva tarea"
         />
         <button className="bg-[var(--accent)] px-4 py-2 rounded text-white font-semibold" type="submit">
-          Añadir
+          add
         </button>
       </form>
       {loading ? (
-        <div>Cargando...</div>
+        <div>loading...</div>
       ) : (
         <ul className="space-y-2">
           {tasks.map(task => (
@@ -171,7 +171,7 @@ export default function TaskList({ noteId, userId }: { noteId?: number; userId?:
                 <button
                   className="ml-auto text-red-400 hover:text-red-600"
                   onClick={() => deleteTask(task.id)}
-                  title="Eliminar tarea"
+                  title="delete task"
                 >
                   🗑
                 </button>
@@ -202,19 +202,19 @@ export default function TaskList({ noteId, userId }: { noteId?: number; userId?:
               className="px-4 py-2 bg-[var(--accent)] text-white rounded-lg hover:bg-[var(--accent-hover)] text-left font-semibold"
               onClick={handleAddTask}
             >
-              Crear tarea
+              Create task
             </button>
             <button
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-left font-semibold"
               onClick={handleAddTaskList}
             >
-              Crear lista de tareas
+              Create tasklist
             </button>
             <button
               className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 text-left font-semibold"
               onClick={() => setFabOpen(false)}
             >
-              Cancelar
+              Cancel
             </button>
           </div>
         </div>

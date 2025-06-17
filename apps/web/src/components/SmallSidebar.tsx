@@ -43,7 +43,7 @@ export default function SmallSidebar({ collapsed, onCollapse, onSelect, activeVi
   return (
     <nav
       className={`
-        flex flex-col items-center
+        flex flex-col h-full
         border-r border-[var(--border)]
         shadow-lg
         transition-all duration-300
@@ -54,6 +54,8 @@ export default function SmallSidebar({ collapsed, onCollapse, onSelect, activeVi
         bg-clip-padding
       `}
       style={{
+        height: "100%",
+        minHeight: 0,
         minWidth: collapsed ? 48 : 80,
         background: "var(--glass-bg)",
         backdropFilter: "blur(1.5px)",
@@ -99,7 +101,7 @@ export default function SmallSidebar({ collapsed, onCollapse, onSelect, activeVi
             : ""
         }`}
         onClick={() => onSelect("notes")}
-        title="Notas sueltas"
+        title="Notes without folder"
         style={{
           background: activeView === "notes" ? "var(--glass-bg)" : "transparent",
           boxShadow: activeView === "notes" ? "0 4px 32px 0 rgba(0,0,0,0.08)" : undefined,

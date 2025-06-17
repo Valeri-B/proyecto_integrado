@@ -52,7 +52,7 @@ export default function TagPickerModal({
         <button
           className="absolute top-3 right-3 text-2xl text-gray-400 hover:text-red-600"
           onClick={onClose}
-          aria-label="Cerrar"
+          aria-label="close"
         >
           ×
         </button>
@@ -104,7 +104,7 @@ export default function TagPickerModal({
               <button
                 className="text-red-500 hover:text-red-700"
                 onClick={() => {
-                  if (confirm("¿Eliminar este tag?")) onDelete(tag.id);
+                  if (confirm("Delete this tag?")) onDelete(tag.id);
                 }}
                 title="Delete tag"
               >

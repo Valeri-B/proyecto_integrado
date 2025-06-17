@@ -316,7 +316,7 @@ export default function TasksBoard({
         className="mb-8"
       >
         <h2 className="text-xl font-bold mb-2" style={{ color: "var(--tasks-h2-text)" }}>Tasks</h2>
-        <form onSubmit={addTask} className="flex gap-2 mb-4 justify-start">
+        <form onSubmit={addTask} className="flex flex-col sm:flex-row gap-2 mb-4 justify-start">
           <input
             className="p-2 rounded-3xl glass-border bg-[var(--glass-bg)] text-[var(--tasks-input-text)] border border-[var(--border)] focus:outline-none focus:border-[var(--accent)] transition backdrop-blur-lg"
             value={newTask}
@@ -331,7 +331,7 @@ export default function TasksBoard({
           </button>
         </form>
         {/* Responsive grid for loose tasks */}
-        <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-start">
+        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:gap-4 items-start">
           {tasks.filter(t => !t.taskListId).map(task => {
             const days = daysUntil(task.dueDate);
             return (
@@ -415,8 +415,8 @@ export default function TasksBoard({
                         {days === 0
                           ? "hoy"
                           : days > 0
-                            ? `${days} días`
-                            : `${Math.abs(days)} días atrás`}
+                            ? `${days} days`
+                            : `${Math.abs(days)} days ago`}
                       </span>
                     )}
                   </span>
@@ -437,7 +437,7 @@ export default function TasksBoard({
                   ))}
                 </div>
                 {/* Tag Picker Modal */}
-               
+
                 {/* Inline edit dropdown */}
                 {editingTaskId === task.id && (
                   <div
@@ -534,7 +534,7 @@ export default function TasksBoard({
       {/* Task Lists */}
       <div>
         <h2 className="text-xl font-bold mb-2 text-[var(--tasks-h2-text)]">Task Lists</h2>
-        <form onSubmit={addList} className="flex gap-2 mb-4">
+        <form onSubmit={addList} className="flex flex-col sm:flex-row gap-2 mb-4">
           <input
             className="p-2 w-48 rounded-3xl glass-border bg-[var(--glass-bg)] text-[var(--tasks-input-text)] border border-[var(--border)] focus:outline-none focus:border-[var(--accent)] transition backdrop-blur-lg"
             value={newList}
@@ -548,15 +548,15 @@ export default function TasksBoard({
             Create list
           </button>
         </form>
-        <div className="flex gap-8 items-start">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 items-start">
           {lists.map(list => (
             <div
               key={list.id}
               onDragOver={e => e.preventDefault()}
               onDrop={onDrop(list.id)}
-              className="glass-border bg-[var(--glass-bg)] backdrop-blur-lg p-4 rounded-4xl shadow min-w-[250px] group relative flex flex-col border border-[var(--border)]"
+              className="glass-border bg-[var(--glass-bg)] backdrop-blur-lg p-3 sm:p-4 rounded-4xl shadow w-full sm:min-w-[250px] group relative flex flex-col border border-[var(--border)]"
               style={{
-                minWidth: 300,
+                minWidth: "unset",
                 marginBottom: 24,
                 background: "var(--glass-bg)",
                 boxShadow: "0 4px 32px 0 rgba(0,0,0,0.08)",
@@ -685,8 +685,8 @@ export default function TasksBoard({
                               {days === 0
                                 ? "hoy"
                                 : days > 0
-                                  ? `${days} días`
-                                  : `${Math.abs(days)} días atrás`}
+                                  ? `${days} days`
+                                  : `${Math.abs(days)} days ago`}
                             </span>
                           )}
                         </span>
@@ -707,7 +707,7 @@ export default function TasksBoard({
                         ))}
                       </div>
                       {/* Tag Picker Modal */}
-                     
+
                       {/* Inline edit dropdown */}
                       {editingTaskId === task.id && (
                         <div
@@ -753,7 +753,7 @@ export default function TasksBoard({
                               value={editDescription}
                               onChange={e => setEditDescription(e.target.value)}
                               disabled={savingEdit}
-                              placeholder="Descripción"
+                              placeholder="Description"
                             />
                             <input
                               type="datetime-local"
@@ -820,7 +820,7 @@ export default function TasksBoard({
             <button
               className="absolute top-3 right-3 text-gray-400 hover:text-red-600 text-2xl"
               onClick={() => setShowDeleteModal(false)}
-              aria-label="Cerrar"
+              aria-label="close"
             >
               ×
             </button>
